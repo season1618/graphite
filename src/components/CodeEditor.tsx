@@ -1,6 +1,7 @@
 import './CodeEditor.css';
 import { useState, useEffect, useContext } from 'react';
 import { BorderContext } from '../App';
+import { tokenize } from './lexer.ts';
 
 function CodeEditor() {
   const [code, setCode] = useState('(define x 0)\n(+ (* x x) (* x 2) 1)');
@@ -51,6 +52,7 @@ function CodeEditor() {
         onChange={
           (e) => {
             format(e.target.selectionStart, e.target.value);
+            console.log(tokenize(e.target.value));
           }
         }
         onKeyDown={
