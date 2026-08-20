@@ -5,7 +5,7 @@ const puncts = ["[", "]", "{", "}", "(", ")", "==", "=", "+", "-", "*", "/", "^"
 
 function tokenize(code: string): Token[] | SyntaxErr {
   let tokens: Token[] = [];
-  let line = 0;
+  let line = 1;
   let col = 0;
   let i = 0;
   while (i < code.length) {
@@ -59,7 +59,7 @@ function tokenize(code: string): Token[] | SyntaxErr {
       col += len;
       continue;
     }
-    return { line, col, err: { kind: 'Unexpected Token' } }
+    return { line, col, code, err: { kind: 'Unexpected Token' } }
   }
   return tokens;
 }

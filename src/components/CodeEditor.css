@@ -9,6 +9,11 @@
   position: relative;
 }
 
+#editor, #report {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 15px;
+}
+
 #editor {
   box-sizing: border-box;
   height: 100%;
@@ -21,8 +26,6 @@
 
   margin: 0;
   padding: 10px;
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-  font-size: 15px;
 }
 
 #editor:focus {

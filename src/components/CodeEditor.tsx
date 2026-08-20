@@ -1,11 +1,13 @@
 import './CodeEditor.css';
 import { useState, useEffect, useContext } from 'react';
 import { BorderContext } from '../App';
+import { type Token, type SyntaxErr, show_syntax_error, show_token_list } from './data.ts';
 import { tokenize } from './lexer.ts';
 
 function CodeEditor() {
   const [code, setCode] = useState('var x = 1 / (1 + 1 * e^x)');
   const [cursorPos, setCursorPos] = useState(-1);
+  const [msg, setMsg] = useState('');
   const borderX = useContext(BorderContext)[0];
   const indent = 4;
 
@@ -21,6 +23,18 @@ function CodeEditor() {
       textarea.setSelectionRange(cursorPos, cursorPos);
     },
     [cursorPos]
+  )
+
+  useEffect(
+    () => {
+      let tokens = tokenize(code);
+      if ((tokens as any).err !== undefined) {
+        setMsg(show_syntax_error(tokens as SyntaxErr));
+        return;
+      }
+      setMsg(show_token_list(tokens as Token[]));
+    },
+    [code]
   )
 
   function format(pos: number, nextCode: string) {
@@ -65,8 +79,8 @@ function CodeEditor() {
         value={code}
         onChange={
           (e) => {
-            format(e.target.selectionStart, e.target.value);
-            console.log(tokenize(e.target.value));
+            let code = e.target.value;
+            format(e.target.selectionStart, code);
           }
         }
         onKeyDown={
@@ -86,7 +100,7 @@ function CodeEditor() {
       />
       <p id="report"
         style={{height: paneHeight - borderY}}
-      >{"var x = \nvar y = "}</p>
+      >{msg}</p>
     </div>
   );
 }

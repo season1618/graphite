@@ -30,7 +30,28 @@ export type SyntaxErrKind = UnexpectToken;
 export type SyntaxErr = {
   line: number;
   col: number;
+  code: string;
   err: SyntaxErrKind;
-}
+};
 
 interface UnexpectToken { kind: 'Unexpected Token' };
+
+export function show_token_list(tokens: Token[]): string {
+  return tokens
+    .map(token => show_token(token))
+    .join(', ');
+}
+
+export function show_token(token_pos: Token): string {
+  let token = token_pos.token;
+  return `${token.kind} ${token.value}`;
+}
+
+export function show_syntax_error(err_: SyntaxErr): string {
+  let { line, col, code, err } = err_;
+  return 'Syntax Error\n' +
+    `${err.kind}\n` +
+    `line ${line}, col ${col}\n` +
+    `${code.split('\n')[line-1]}\n` +
+    `${' '.repeat(col)}^\n`;
+}
