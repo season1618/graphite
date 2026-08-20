@@ -1,0 +1,7 @@
+#draghandle {
+    height: 100%;
+    width: 5px;
+    cursor: ew-resize;
+
+    position: fixed;
+}

@@ -1,0 +1,28 @@
+div#editor {
+  height: 100%;
+}
+
+textarea {
+  box-sizing: border-box;
+  height: 100%;
+  resize: none;
+
+  margin-left: 10px;
+
+  border-top-style: none;
+  border-bottom-style: none;
+  border-left-style: none;
+
+  white-space: nowrap;
+  
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 15px;
+}
+
+textarea:focus {
+  outline: 0;
+}
+
+textarea::selection {
+  background-color: rgb(180, 210, 255);
+}
