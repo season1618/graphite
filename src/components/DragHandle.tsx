@@ -8,7 +8,7 @@ function DragHandle() {
 
   return (
     <div id="draghandle"
-      style={{left: borderX}}
+      style={{left: borderX - 2.5}}
       onMouseDown={() => setDragged(true)}
       onMouseUp={() => setDragged(false)}
     ></div>

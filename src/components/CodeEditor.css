@@ -1,28 +1,54 @@
-div#editor {
+#pane {
   height: 100%;
+
+  border-right-style: solid;
+  border-width: 1px;
+
+  line-height: 0;
+
+  position: relative;
 }
 
-textarea {
+#editor {
   box-sizing: border-box;
   height: 100%;
+  width: 100%;
+
   resize: none;
-
-  margin-left: 10px;
-
-  border-top-style: none;
-  border-bottom-style: none;
-  border-left-style: none;
+  border-style: none;
 
   white-space: nowrap;
-  
+
+  margin: 0;
+  padding: 10px;
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
   font-size: 15px;
 }
 
-textarea:focus {
+#editor:focus {
   outline: 0;
 }
 
-textarea::selection {
+#editor::selection {
   background-color: rgb(180, 210, 255);
+}
+
+#drag_handle_h {
+  height: 5px;
+  width: 100%;
+  cursor: ns-resize;
+
+  position: absolute;
+}
+
+#report {
+  margin: 0;
+  padding: 10px;
+
+  white-space: pre-wrap;
+  line-height: 20px;
+
+  background-color: beige;
+  border-top: solid;
+  border-width: 1px;
 }

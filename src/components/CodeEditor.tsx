@@ -4,10 +4,15 @@ import { BorderContext } from '../App';
 import { tokenize } from './lexer.ts';
 
 function CodeEditor() {
-  const [code, setCode] = useState('(define x 0)\n(+ (* x x) (* x 2) 1)');
+  const [code, setCode] = useState('var x = 1 / (1 + 1 * e^x)');
   const [cursorPos, setCursorPos] = useState(-1);
   const borderX = useContext(BorderContext)[0];
   const indent = 4;
+
+  const [dragged, setDragged] = useState(false);
+  const [borderY, setBorderY] = useState(200);
+
+  const paneHeight = window.innerHeight - 60;
 
   useEffect(
     () => {
@@ -45,9 +50,18 @@ function CodeEditor() {
   }
 
   return (
-    <div id="editor">
-      <textarea
-        style={{width: borderX - 10}}
+    <div id="pane"
+      style={{width: borderX}}
+      onMouseMove={
+          (e) => {
+            if (dragged) {
+              setBorderY(e.clientY - e.currentTarget.getBoundingClientRect().top);
+            }
+          }
+        }
+    >
+      <textarea id="editor"
+        style={{ height: borderY }}
         value={code}
         onChange={
           (e) => {
@@ -65,6 +79,14 @@ function CodeEditor() {
           }
         }
       />
+      <div id="drag_handle_h"
+        style={{width: borderX, top: borderY - 2.5}}
+        onMouseDown={() => setDragged(true)}
+        onMouseUp={() => setDragged(false)}
+      />
+      <p id="report"
+        style={{height: paneHeight - borderY}}
+      >{"var x = \nvar y = "}</p>
     </div>
   );
 }
