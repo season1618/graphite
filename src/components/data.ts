@@ -26,7 +26,7 @@ interface Num {
   value: number;
 }
 
-export type SyntaxErrKind = UnexpectToken;
+export type SyntaxErrKind = InvalidToken;
 export type SyntaxErr = {
   line: number;
   col: number;
@@ -34,7 +34,7 @@ export type SyntaxErr = {
   err: SyntaxErrKind;
 };
 
-interface UnexpectToken { kind: 'Unexpected Token' };
+interface InvalidToken { kind: 'Invalid Token' };
 
 export function show_token_list(tokens: Token[]): string {
   return tokens
