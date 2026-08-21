@@ -15,7 +15,52 @@ class Parser {
   }
 
   parse(): Expr {
-    return this.prim();
+    return this.add();
+  }
+
+  add(): Expr {
+    let lhs = this.mul();
+    while (true) {
+      if (this.consume_if({ kind: 'punct', value: '+' })) {
+        let rhs = this.mul();
+        lhs = { kind: 'add', lhs, rhs };
+        continue;
+      }
+      if (this.consume_if({ kind: 'punct', value: '-' })) {
+        let rhs = this.mul();
+        lhs = { kind: 'sub', lhs, rhs };
+        continue;
+      }
+      break;
+    }
+    return lhs;
+  }
+
+  mul(): Expr {
+    let lhs = this.pow();
+    while (true) {
+      if (this.consume_if({ kind: 'punct', value: '*' })) {
+        let rhs = this.pow();
+        lhs = { kind: 'mul', lhs, rhs };
+        continue;
+      }
+      if (this.consume_if({ kind: 'punct', value: '/' })) {
+        let rhs = this.pow();
+        lhs = { kind: 'div', lhs, rhs };
+        continue;
+      }
+      break;
+    }
+    return lhs;
+  }
+
+  pow(): Expr {
+    let lhs = this.prim();
+    while (this.consume_if({ kind: 'punct', value: '^' })) {
+      let rhs = this.prim();
+      lhs = { kind: 'pow', lhs, rhs };
+    }
+    return lhs;
   }
 
   prim(): Expr {
@@ -32,7 +77,7 @@ class Parser {
     }
   }
 
-  consume(token: TokenKind): boolean {
+  consume_if(token: TokenKind): boolean {
     if (this.tokens[this.pos].token === token) {
       this.pos++;
       return true;
