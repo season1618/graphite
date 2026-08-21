@@ -28,13 +28,11 @@ interface Num {
 
 export type SyntaxErrKind = InvalidToken;
 export type SyntaxErr = {
-  line: number;
-  col: number;
-  code: string;
   err: SyntaxErrKind;
+  code: string;
 };
 
-interface InvalidToken { kind: 'Invalid Token' };
+interface InvalidToken { kind: 'Invalid Token', line: number, col: number };
 
 export function show_token_list(tokens: Token[]): string {
   return tokens
@@ -48,10 +46,14 @@ export function show_token(token_pos: Token): string {
 }
 
 export function show_syntax_error(err_: SyntaxErr): string {
-  let { line, col, code, err } = err_;
-  return 'Syntax Error\n' +
-    `${err.kind}\n` +
-    `line ${line}, col ${col}\n` +
-    `${code.split('\n')[line-1]}\n` +
-    `${' '.repeat(col)}^\n`;
+  let { err, code } = err_;
+  switch (err.kind) {
+    case 'Invalid Token':
+      let { line, col } = err;
+      return 'Syntax Error\n' +
+        `${err.kind}\n` +
+        `line ${line}, col ${col}\n` +
+        `${code.split('\n')[line-1]}\n` +
+        `${' '.repeat(col)}^\n`;
+  }
 }

@@ -59,7 +59,7 @@ function tokenize(code: string): Token[] | SyntaxErr {
       col += len;
       continue;
     }
-    return { line, col, code, err: { kind: 'Invalid Token' } }
+    return { err: { kind: 'Invalid Token', line, col }, code }
   }
   return tokens;
 }
