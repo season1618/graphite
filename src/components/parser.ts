@@ -1,8 +1,9 @@
 import type { Token, TokenKind, Expr } from './data.ts';
+import isEqual from "lodash/isEqual";
 
 export function parse(tokens: Token[]): Expr {
   let parser = new Parser(tokens);
-  return parser.parse();
+  return parser.expr();
 }
 
 class Parser {
@@ -14,7 +15,19 @@ class Parser {
     this.pos = 0;
   }
 
-  parse(): Expr {
+  expr(): Expr {
+    return this.let();
+  }
+
+  let(): Expr {
+    if (this.consume_if({ kind: 'keyword', value: 'var' })) {
+      let name = this.ident();
+      this.consume({ kind: 'punct', value: '=' });
+      let expr1 = this.let();
+      this.consume({ kind: 'punct', value: ';' });
+      let expr2 = this.let();
+      return { kind: 'let', name, expr1, expr2 };
+    }
     return this.add();
   }
 
@@ -64,7 +77,12 @@ class Parser {
   }
 
   prim(): Expr {
-    let token = this.tokens[this.pos].token;
+    let token = this.current().token;
+    if (this.consume_if({ kind: 'punct', value: '(' })) {
+      let expr = this.expr();
+      this.consume({ kind: 'punct', value: ')' });
+      return expr;
+    }
     switch (token.kind) {
       case 'ident':
         this.pos++;
@@ -73,16 +91,50 @@ class Parser {
         this.pos++;
         return { kind: 'num', value: token.value };
       default:
-        throw { kind: 'not primary expression', token: this.tokens[this.pos] };
+        throw { kind: 'not primary expression', token: this.current() };
     }
   }
 
-  consume_if(token: TokenKind): boolean {
-    if (this.tokens[this.pos].token === token) {
-      this.pos++;
-      return true;
+  current(): Token {
+    if (this.pos < this.tokens.length) {
+      return this.tokens[this.pos];
     } else {
+      let { line, colr: col } = this.tokens[this.tokens.length - 1];
+      throw { kind: 'No Token', line, col };
+    }
+  }
+
+  consume_if(expected: TokenKind): boolean {
+    try {
+      let actual = this.current().token;
+      if (isEqual(expected, actual)) {
+        this.pos++;
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
       return false;
+    }
+  }
+
+  consume(expected: TokenKind) {
+    let actual = this.current().token;
+    if (isEqual(expected, actual)) {
+      this.pos++;
+      return;
+    } else {
+      throw { kind: 'Unexpected Token', expected, actual: this.current() };
+    }
+  }
+
+  ident(): string {
+    let token = this.current().token;
+    if (token.kind == 'ident') {
+      this.pos++;
+      return token.value;
+    } else {
+      throw { kind: 'not identifier', token };
     }
   }
 } 

@@ -14,7 +14,7 @@ interface Num { kind: 'num', value: number }
 export type Expr = Block | Let | Add | Sub | Mul | Div | Pow | App | Var | Num
 
 interface Block { kind: 'block', exprs: Expr[] }
-interface Let { kind: 'let', x: string, e1: Expr, e2: Expr }
+interface Let { kind: 'let', name: string, expr1: Expr, expr2: Expr }
 interface Add { kind: 'add', lhs: Expr, rhs: Expr }
 interface Sub { kind: 'sub', lhs: Expr, rhs: Expr }
 interface Mul { kind: 'mul', lhs: Expr, rhs: Expr }
@@ -23,10 +23,13 @@ interface Pow { kind: 'pow', lhs: Expr, rhs: Expr }
 interface App { kind: 'app', e1: Expr, e2: Expr }
 interface Var { kind: 'var', name: string }
 
-export type SyntaxErr = InvalidToken | NotPrim;
+export type SyntaxErr = InvalidToken | NoToken | UnexpectedToken | NotPrim | NotIdent;
 
 interface InvalidToken { kind: 'Invalid Token', line: number, col: number };
-interface NotPrim { kind: 'not primary expression', token: Token }
+interface NoToken { kind: 'No Token', line: number, col: number };
+interface UnexpectedToken { kind: 'Unexpected Token', expected: TokenKind, actual: Token };
+interface NotPrim { kind: 'not primary expression', token: Token };
+interface NotIdent { kind: 'not identifier', token: Token };
 
 export function show_token_list(tokens: Token[]): string {
   return tokens
@@ -39,12 +42,25 @@ export function show_token(token_pos: Token): string {
   return `${token.kind} ${token.value}`;
 }
 
+function show_token_kind(token: TokenKind): string {
+  return `${token.value}`;
+}
+
 export function show_syntax_error(err: SyntaxErr, code: string): string {
   switch (err.kind) {
-    case 'Invalid Token': {
+    case 'Invalid Token':
+    case 'No Token': {
       let { line, col } = err;
       return 'Syntax Error\n' +
         `${err.kind}\n` +
+        `line ${line}, col ${col}\n` +
+        `${code.split('\n')[line-1]}\n` +
+        `${' '.repeat(col)}^\n`;
+    }
+    case 'Unexpected Token': {
+      let { expected, actual: { line, coll: col, token: actual} } = err;
+      return 'Syntax Error\n' +
+        `${err.kind}: excpected "${show_token_kind(expected)}", actual "${show_token_kind(actual)}"\n` +
         `line ${line}, col ${col}\n` +
         `${code.split('\n')[line-1]}\n` +
         `${' '.repeat(col)}^\n`;

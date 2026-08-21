@@ -35,6 +35,8 @@ function CodeEditor() {
       } catch (err: any) {
         if ('kind' in err) {
           setMsg(show_syntax_error(err as SyntaxErr, code));
+        } else {
+          console.log(err);
         }
       }
     },

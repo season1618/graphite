@@ -1,7 +1,7 @@
 import type { Token, TokenKind } from './data.ts';
 
 const keywords = ["var"];
-const puncts = ["[", "]", "{", "}", "(", ")", "==", "=", "+", "-", "*", "/", "^"];
+const puncts = ["[", "]", "{", "}", "(", ")", "==", "=", "+", "-", "*", "/", "^", ",", ":", ";"];
 
 function tokenize(code: string): Token[] {
   let tokens: Token[] = [];
