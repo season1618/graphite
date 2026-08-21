@@ -23,13 +23,17 @@ interface Pow { kind: 'pow', lhs: Expr, rhs: Expr }
 interface App { kind: 'app', e1: Expr, e2: Expr }
 interface Var { kind: 'var', name: string }
 
-export type SyntaxErr = InvalidToken | NoToken | UnexpectedToken | NotPrim | NotIdent;
+export type Error
+  = InvalidToken | NoToken | UnexpectedToken | NotPrim | NotIdent
+  | NotFound;
 
 interface InvalidToken { kind: 'Invalid Token', line: number, col: number };
 interface NoToken { kind: 'No Token', line: number, col: number };
 interface UnexpectedToken { kind: 'Unexpected Token', expected: TokenKind, actual: Token };
 interface NotPrim { kind: 'not primary expression', token: Token };
 interface NotIdent { kind: 'not identifier', token: Token };
+
+interface NotFound { kind: 'Not Found', name: string };
 
 export function show_token_list(tokens: Token[]): string {
   return tokens
@@ -46,7 +50,7 @@ function show_token_kind(token: TokenKind): string {
   return `${token.value}`;
 }
 
-export function show_syntax_error(err: SyntaxErr, code: string): string {
+export function show_error(err: Error, code: string): string {
   switch (err.kind) {
     case 'Invalid Token':
     case 'No Token': {
@@ -65,12 +69,19 @@ export function show_syntax_error(err: SyntaxErr, code: string): string {
         `${code.split('\n')[line-1]}\n` +
         `${' '.repeat(col)}^\n`;
     }
-    default:
+    case 'not primary expression':
+    case 'not identifier':
       let { token: { line, coll: col } } = err;
       return 'Syntax Error\n' +
         `${err.kind}\n` +
         `line ${line}, col ${col}\n` +
         `${code.split('\n')[line-1]}\n` +
         `${' '.repeat(col)}^\n`;
+    case 'Not Found':
+      return 'Runtime Error\n' +
+        `"${err.name}" is not found\n`;
+        // `line ${line}, col ${col}\n` +
+        // `${code.split('\n')[line-1]}\n` +
+        // `${' '.repeat(col)}^\n`;
   }
 }

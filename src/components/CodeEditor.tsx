@@ -1,19 +1,20 @@
 import './CodeEditor.css';
 import { useState, useEffect, useContext } from 'react';
 import { BorderContext } from '../App';
-import { type SyntaxErr, show_syntax_error, show_token_list } from './data.ts';
+import { type Error, show_error, show_token_list } from './data.ts';
 import { tokenize } from './lexer.ts';
 import { parse } from './parser.ts';
+import { evaluate0 } from './eval.ts';
 
 function CodeEditor() {
-  const [code, setCode] = useState('var x = 1 / (1 + 1 * e^x)');
+  const [code, setCode] = useState('var x = 1 / (1 + 1 * 2^3);\nvar y = 3;\nx * y');
   const [cursorPos, setCursorPos] = useState(-1);
   const [msg, setMsg] = useState('');
   const borderX = useContext(BorderContext)[0];
   const indent = 4;
 
   const [dragged, setDragged] = useState(false);
-  const [borderY, setBorderY] = useState(200);
+  const [borderY, setBorderY] = useState(400);
 
   const paneHeight = window.innerHeight - 60;
 
@@ -31,10 +32,12 @@ function CodeEditor() {
       try {
         let tokens = tokenize(code);
         let expr = parse(tokens);
+        let value = evaluate0(expr);
+        console.log(value);
         setMsg(show_token_list(tokens));
       } catch (err: any) {
         if ('kind' in err) {
-          setMsg(show_syntax_error(err as SyntaxErr, code));
+          setMsg(show_error(err as Error, code));
         } else {
           console.log(err);
         }
