@@ -1,9 +1,9 @@
-import type { Token, TokenKind, SyntaxErr } from './data.ts';
+import type { Token, TokenKind } from './data.ts';
 
 const keywords = ["var"];
 const puncts = ["[", "]", "{", "}", "(", ")", "==", "=", "+", "-", "*", "/", "^"];
 
-function tokenize(code: string): Token[] | SyntaxErr {
+function tokenize(code: string): Token[] {
   let tokens: Token[] = [];
   let line = 1;
   let col = 0;
@@ -59,7 +59,7 @@ function tokenize(code: string): Token[] | SyntaxErr {
       col += len;
       continue;
     }
-    return { kind: 'Invalid Token', line, col }
+    throw { kind: 'Invalid Token', line, col };
   }
   return tokens;
 }

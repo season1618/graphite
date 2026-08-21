@@ -1,7 +1,7 @@
 import './CodeEditor.css';
 import { useState, useEffect, useContext } from 'react';
 import { BorderContext } from '../App';
-import { type Token, type SyntaxErr, show_syntax_error, show_token_list } from './data.ts';
+import { type SyntaxErr, show_syntax_error, show_token_list } from './data.ts';
 import { tokenize } from './lexer.ts';
 
 function CodeEditor() {
@@ -27,12 +27,14 @@ function CodeEditor() {
 
   useEffect(
     () => {
-      let tokens = tokenize(code);
-      if ('kind' in tokens) {
-        setMsg(show_syntax_error(tokens as SyntaxErr, code));
-        return;
+      try {
+        let tokens = tokenize(code);
+        setMsg(show_token_list(tokens));
+      } catch (err: any) {
+        if ('kind' in err) {
+          setMsg(show_syntax_error(err as SyntaxErr, code));
+        }
       }
-      setMsg(show_token_list(tokens as Token[]));
     },
     [code]
   )
