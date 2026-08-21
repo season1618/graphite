@@ -28,8 +28,8 @@ function CodeEditor() {
   useEffect(
     () => {
       let tokens = tokenize(code);
-      if ((tokens as any).err !== undefined) {
-        setMsg(show_syntax_error(tokens as SyntaxErr));
+      if ('kind' in tokens) {
+        setMsg(show_syntax_error(tokens as SyntaxErr, code));
         return;
       }
       setMsg(show_token_list(tokens as Token[]));

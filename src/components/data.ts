@@ -26,11 +26,7 @@ interface Num {
   value: number;
 }
 
-export type SyntaxErrKind = InvalidToken;
-export type SyntaxErr = {
-  err: SyntaxErrKind;
-  code: string;
-};
+export type SyntaxErr = InvalidToken;
 
 interface InvalidToken { kind: 'Invalid Token', line: number, col: number };
 
@@ -45,8 +41,7 @@ export function show_token(token_pos: Token): string {
   return `${token.kind} ${token.value}`;
 }
 
-export function show_syntax_error(err_: SyntaxErr): string {
-  let { err, code } = err_;
+export function show_syntax_error(err: SyntaxErr, code: string): string {
   switch (err.kind) {
     case 'Invalid Token':
       let { line, col } = err;
