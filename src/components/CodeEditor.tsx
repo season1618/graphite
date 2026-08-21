@@ -3,6 +3,7 @@ import { useState, useEffect, useContext } from 'react';
 import { BorderContext } from '../App';
 import { type SyntaxErr, show_syntax_error, show_token_list } from './data.ts';
 import { tokenize } from './lexer.ts';
+import { parse } from './parser.ts';
 
 function CodeEditor() {
   const [code, setCode] = useState('var x = 1 / (1 + 1 * e^x)');
@@ -29,6 +30,7 @@ function CodeEditor() {
     () => {
       try {
         let tokens = tokenize(code);
+        let expr = parse(tokens);
         setMsg(show_token_list(tokens));
       } catch (err: any) {
         if ('kind' in err) {
