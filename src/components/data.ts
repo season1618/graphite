@@ -12,7 +12,7 @@ interface Ident { kind: 'ident', value: string }
 
 export interface Num { kind: 'num', value: number }
 
-export type Expr = Block | Let | Add | Sub | Mul | Div | Pow | App | Var | Num | Tuple
+export type Expr = Block | Let | Add | Sub | Mul | Div | Pow | Abs | App | Var | Num | Tuple
 
 interface Block { kind: 'block', exprs: Expr[] }
 interface Let { kind: 'let', name: string, expr1: Expr, expr2: Expr }
@@ -21,6 +21,7 @@ interface Sub { kind: 'sub', lhs: Expr, rhs: Expr }
 interface Mul { kind: 'mul', lhs: Expr, rhs: Expr }
 interface Div { kind: 'div', lhs: Expr, rhs: Expr }
 interface Pow { kind: 'pow', lhs: Expr, rhs: Expr }
+interface Abs { kind: 'abs', name: string, body: Expr }
 interface App { kind: 'app', e1: Expr, e2: Expr }
 interface Var { kind: 'var', name: string }
 interface Tuple { kind: 'tuple', exprs: Expr[] }

@@ -1,7 +1,7 @@
 import { type Expr } from './data.ts';
 
 type Name = string
-type Value = number | Value[]
+type Value = number | Closure | Value[]
 
 class Bind {
   x: Name;
@@ -36,6 +36,18 @@ class Env {
   }
 }
 
+class Closure {
+  env: Env;
+  name: Name;
+  body: Expr;
+
+  constructor(env: Env, name: Name, body: Expr) {
+    this.env = env;
+    this.name = name;
+    this.body = body;
+  }
+}
+
 export function evaluate0(expr: Expr): Value {
   return evaluate(expr, new Env());
 }
@@ -61,8 +73,16 @@ function evaluate(expr: Expr, env: Env): Value {
       let v1 = evaluate(lhs, env) as number;
       let v2 = evaluate(rhs, env) as number;
       return arith_op(kind, v1, v2);
-    case 'app':
-      return 0;
+    case 'abs': {
+      let { name, body } = expr;
+      return new Closure(env, name, body);
+    }
+    case 'app': {
+      let { e1, e2 } = expr;
+      let v1 = evaluate(e1, env);
+      let v2 = evaluate(e2, env);
+      return apply(v1 as Closure, v2);
+    }
     case 'var':
       return env.find(expr.name);
     case 'num':
@@ -70,6 +90,14 @@ function evaluate(expr: Expr, env: Env): Value {
     case 'tuple':
       return expr.exprs.map(e => evaluate(e, env));
   }
+}
+
+function apply(fun: Closure, arg: Value): Value {
+  let { env, name, body } = fun;
+  env.push(name, arg);
+  let ret = evaluate(body, env);
+  env.pop();
+  return ret;
 }
 
 function arith_op(op: 'add' | 'sub' | 'mul' | 'div' | 'pow', v1: number, v2: number): number {

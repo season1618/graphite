@@ -68,12 +68,28 @@ class Parser {
   }
 
   pow(): Expr {
-    let lhs = this.prim();
+    let lhs = this.app();
     if (this.consume_if({ kind: 'punct', value: '^' })) {
       let rhs = this.pow();
       lhs = { kind: 'pow', lhs, rhs };
     }
     return lhs;
+  }
+
+  app(): Expr {
+    let fun = this.prim();
+    while (true) {
+      let pos = this.pos;
+      try{
+        let arg = this.prim();
+        fun = { kind: 'app', e1: fun, e2: arg };
+        continue;
+      } catch {
+        this.pos = pos;
+        break;
+      }
+    }
+    return fun;
   }
 
   prim(): Expr {
@@ -93,8 +109,14 @@ class Parser {
     }
     switch (token.kind) {
       case 'ident':
+        let name = token.value;
         this.pos++;
-        return { kind: 'var', name: token.value };
+        if (this.consume_if({ kind: 'punct', value: '->' })) {
+          let body = this.expr();
+          return { kind: 'abs', name, body };
+        } else {
+          return { kind: 'var', name };
+        }
       case 'num':
         this.pos++;
         return { kind: 'num', value: token.value };
@@ -143,6 +165,16 @@ class Parser {
       return token.value;
     } else {
       throw { kind: 'not identifier', token };
+    }
+  }
+
+  ident_if(): string | null {
+    let token = this.current().token;
+    if (token.kind == 'ident') {
+      this.pos++;
+      return token.value;
+    } else {
+      return null;
     }
   }
 } 

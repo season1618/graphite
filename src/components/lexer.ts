@@ -1,7 +1,7 @@
 import type { Token, TokenKind } from './data.ts';
 
 const keywords = ["var"];
-const puncts = ["[", "]", "{", "}", "(", ")", "==", "=", "+", "-", "*", "/", "^", ",", ":", ";"];
+const puncts = ["[", "]", "{", "}", "(", ")", "->", "==", "=", "+", "-", "*", "/", "^", ",", ":", ";"];
 
 function tokenize(code: string): Token[] {
   let tokens: Token[] = [];
@@ -22,7 +22,7 @@ function tokenize(code: string): Token[] {
       continue;
     }
 
-    let punct = find_punct(code[i]);
+    let punct = find_punct(code.substring(i));
     if (punct !== undefined) {
       let len = punct.length;
       tokens.push({ 
