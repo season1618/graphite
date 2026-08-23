@@ -69,8 +69,8 @@ class Parser {
 
   pow(): Expr {
     let lhs = this.prim();
-    while (this.consume_if({ kind: 'punct', value: '^' })) {
-      let rhs = this.prim();
+    if (this.consume_if({ kind: 'punct', value: '^' })) {
+      let rhs = this.pow();
       lhs = { kind: 'pow', lhs, rhs };
     }
     return lhs;
