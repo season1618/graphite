@@ -1,7 +1,7 @@
 import { type Expr } from './data.ts';
 
 type Name = string
-type Value = number
+type Value = number | Value[]
 
 class Bind {
   x: Name;
@@ -53,20 +53,36 @@ function evaluate(expr: Expr, env: Env): Value {
       env.pop();
       return res;
     case 'add':
-      return evaluate(expr.lhs, env) + evaluate(expr.rhs, env);
     case 'sub':
-      return evaluate(expr.lhs, env) - evaluate(expr.rhs, env);
     case 'mul':
-      return evaluate(expr.lhs, env) * evaluate(expr.rhs, env);
     case 'div':
-      return evaluate(expr.lhs, env) / evaluate(expr.rhs, env);
     case 'pow':
-      return evaluate(expr.lhs, env) ** evaluate(expr.rhs, env);
+      let { kind, lhs, rhs } = expr;
+      let v1 = evaluate(lhs, env) as number;
+      let v2 = evaluate(rhs, env) as number;
+      return arith_op(kind, v1, v2);
     case 'app':
       return 0;
     case 'var':
       return env.find(expr.name);
     case 'num':
       return expr.value;
+    case 'tuple':
+      return expr.exprs.map(e => evaluate(e, env));
+  }
+}
+
+function arith_op(op: 'add' | 'sub' | 'mul' | 'div' | 'pow', v1: number, v2: number): number {
+  switch (op) {
+    case 'add':
+      return v1 + v2;
+    case 'sub':
+      return v1 - v2;
+    case 'mul':
+      return v1 * v2;
+    case 'div':
+      return v1 / v2;
+    case 'pow':
+      return v1 ** v2;
   }
 }

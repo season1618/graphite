@@ -9,9 +9,10 @@ export type Token = {
 interface Keyword { kind: 'keyword', value: string }
 interface Punct { kind: 'punct', value: string }
 interface Ident { kind: 'ident', value: string }
-interface Num { kind: 'num', value: number }
 
-export type Expr = Block | Let | Add | Sub | Mul | Div | Pow | App | Var | Num
+export interface Num { kind: 'num', value: number }
+
+export type Expr = Block | Let | Add | Sub | Mul | Div | Pow | App | Var | Num | Tuple
 
 interface Block { kind: 'block', exprs: Expr[] }
 interface Let { kind: 'let', name: string, expr1: Expr, expr2: Expr }
@@ -22,6 +23,7 @@ interface Div { kind: 'div', lhs: Expr, rhs: Expr }
 interface Pow { kind: 'pow', lhs: Expr, rhs: Expr }
 interface App { kind: 'app', e1: Expr, e2: Expr }
 interface Var { kind: 'var', name: string }
+interface Tuple { kind: 'tuple', exprs: Expr[] }
 
 export type Error
   = InvalidToken | NoToken | UnexpectedToken | NotPrim | NotIdent

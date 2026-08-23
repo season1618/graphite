@@ -79,9 +79,17 @@ class Parser {
   prim(): Expr {
     let token = this.current().token;
     if (this.consume_if({ kind: 'punct', value: '(' })) {
-      let expr = this.expr();
-      this.consume({ kind: 'punct', value: ')' });
-      return expr;
+      if (this.consume_if({ kind: 'punct', value: ')' })) {
+        return { kind: 'tuple', exprs: [] };
+      } else {
+        let exprs = [this.expr()];
+        while (this.consume_if({ kind: 'punct', value: ',' })) {
+          exprs.push(this.expr());
+        }
+        this.consume({ kind: 'punct', value: ')' });
+        if (exprs.length === 1) return exprs[0];
+        else return { kind: 'tuple', exprs };
+      }
     }
     switch (token.kind) {
       case 'ident':
