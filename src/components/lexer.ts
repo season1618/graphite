@@ -47,9 +47,8 @@ function tokenize(code: string): Token[] {
 
     if (is_alphanumeric_(code[i])) {
       let [ident, len] = find_ident(code.substring(i));
-      let keyword = find_keyword(code.substring(i));
-      let token: TokenKind = keyword !== undefined ?
-        { kind: 'keyword', value: keyword } :
+      let token: TokenKind = keywords.includes(ident) ?
+        { kind: 'keyword', value: ident } :
         { kind: 'ident', value: ident };
       tokens.push({ 
         line, coll: col, colr: col + len,
@@ -74,10 +73,6 @@ function is_numeric(str: string): boolean {
 
 function is_alphanumeric_(str: string): boolean {
   return /^[A-Za-z]$/.test(str) || is_numeric(str) || str === '_';
-}
-
-function find_keyword(str: string): string | undefined {
-  return keywords.find((keyword) => str.startsWith(keyword))
 }
 
 function find_punct(str: string): string | undefined {
