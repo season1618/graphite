@@ -5,7 +5,7 @@ import { tokenize } from './lexer.ts';
 import { parse } from './parser.ts';
 import { evaluate0 } from './eval.ts';
 
-function CodeEditor({ borderX }: { borderX: number; }) {
+function CodeEditor({ width }: { width: number; }) {
   const [code, setCode] = useState('var x = 1 / (1 + 1 * 2^3);\nvar y = 3;\nx * y');
   const [cursorPos, setCursorPos] = useState(-1);
   const [msg, setMsg] = useState('');
@@ -72,7 +72,7 @@ function CodeEditor({ borderX }: { borderX: number; }) {
 
   return (
     <div id="pane"
-      style={{width: borderX}}
+      style={{width}}
       onMouseMove={
           (e) => {
             if (dragged) {
@@ -101,7 +101,7 @@ function CodeEditor({ borderX }: { borderX: number; }) {
         }
       />
       <div id="drag_handle_h"
-        style={{width: borderX, top: borderY - 2.5}}
+        style={{width, top: borderY - 2.5}}
         onMouseDown={() => setDragged(true)}
         onMouseUp={() => setDragged(false)}
       />

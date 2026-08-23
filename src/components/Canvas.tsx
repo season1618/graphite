@@ -1,13 +1,12 @@
 import './Canvas.css';
 import { useState, useEffect } from 'react';
 
-function Canvas({ borderX }: { borderX: number; }) {
+function Canvas({ width }: { width: number; }) {
   const [mousePressed, setMousePressed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
   const [logScale, setLogScale] = useState(0);
   const [canvasSize, setCanvasSize] = useState({ height: 0, width: 0 });
-  // const borderX = useContext(BorderContext)[0]
 
   function updateMousePos(x: number, y: number) {
     if (mousePressed) {
@@ -53,12 +52,12 @@ function Canvas({ borderX }: { borderX: number; }) {
       context.translate(origin.x, origin.y);
       context.scale(Math.pow(1.1, logScale), Math.pow(1.1, logScale));
     },
-    [origin, logScale, canvasSize, borderX]
+    [origin, logScale, canvasSize, width]
   );
 
   return (
     <canvas
-      style={{width: window.innerWidth - borderX}}
+      style={{width}}
       onMouseDown={() => setMousePressed(true)}
       onMouseUp={() => setMousePressed(false)}
       onMouseMove={

@@ -18,9 +18,9 @@ function App() {
           }
         }
       >
-        <CodeEditor borderX={borderX}/>
+        <CodeEditor width={borderX}/>
         <DragHandle borderX={borderX} setDragged={setDragged}/>
-        <Canvas borderX={borderX}/>
+        <Canvas width={window.innerWidth - borderX}/>
       </div>
     </div>
   );
