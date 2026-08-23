@@ -1,16 +1,14 @@
 import './CodeEditor.css';
-import { useState, useEffect, useContext } from 'react';
-import { BorderContext } from '../App';
+import { useState, useEffect } from 'react';
 import { type Error, show_error, show_token_list } from './data.ts';
 import { tokenize } from './lexer.ts';
 import { parse } from './parser.ts';
 import { evaluate0 } from './eval.ts';
 
-function CodeEditor() {
+function CodeEditor({ borderX }: { borderX: number; }) {
   const [code, setCode] = useState('var x = 1 / (1 + 1 * 2^3);\nvar y = 3;\nx * y');
   const [cursorPos, setCursorPos] = useState(-1);
   const [msg, setMsg] = useState('');
-  const borderX = useContext(BorderContext)[0];
   const indent = 4;
 
   const [dragged, setDragged] = useState(false);

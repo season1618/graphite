@@ -1,10 +1,8 @@
 import './DragHandle.css';
-import { useContext } from 'react';
-import { DragContext, BorderContext } from '../App';
 
-function DragHandle() {
-  const setDragged = useContext(DragContext)[1];
-  const borderX = useContext(BorderContext)[0];
+function DragHandle({ borderX, setDragged }: { borderX: number; setDragged: React.Dispatch<React.SetStateAction<boolean>> }) {
+  // const setDragged = useContext(DragContext)[1];
+  // const borderX = useContext(BorderContext)[0];
 
   return (
     <div id="draghandle"

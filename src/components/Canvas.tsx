@@ -1,14 +1,13 @@
 import './Canvas.css';
-import { useState, useEffect, useContext } from 'react';
-import { BorderContext } from '../App';
+import { useState, useEffect } from 'react';
 
-function Canvas() {
+function Canvas({ borderX }: { borderX: number; }) {
   const [mousePressed, setMousePressed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
   const [logScale, setLogScale] = useState(0);
   const [canvasSize, setCanvasSize] = useState({ height: 0, width: 0 });
-  const borderX = useContext(BorderContext)[0]
+  // const borderX = useContext(BorderContext)[0]
 
   function updateMousePos(x: number, y: number) {
     if (mousePressed) {
