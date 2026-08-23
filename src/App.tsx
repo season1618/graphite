@@ -2,11 +2,11 @@ import './App.css';
 import { useState } from 'react';
 import CodeEditor from './components/CodeEditor';
 import Canvas from './components/Canvas';
-import DragHandle from './components/DragHandle';
 
 function App() {
   const [dragged, setDragged] = useState<boolean>(false);
   const [borderX, setBorderX] = useState<number>(window.innerWidth / 2);
+  const width = 5;
 
   return (
     <div id="app">
@@ -19,7 +19,11 @@ function App() {
         }
       >
         <CodeEditor width={borderX}/>
-        <DragHandle borderX={borderX} setDragged={setDragged}/>
+        <div id="border"
+          style={{left: borderX - width/2, width }}
+          onMouseDown={() => setDragged(true)}
+          onMouseUp={() => setDragged(false)}
+        />
         <Canvas width={window.innerWidth - borderX}/>
       </div>
     </div>

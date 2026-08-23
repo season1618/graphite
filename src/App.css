@@ -1,4 +1,4 @@
-div#app {
+#app {
   height: 100%;
   width: 100%;
 }
@@ -19,8 +19,15 @@ h2 {
   color: white;
 }
 
-div#flex {
+#flex {
   display: flex;
   height: calc(100% - 60px);
   width: 100%;
+}
+
+#border {
+  height: 100%;
+  cursor: ew-resize;
+
+  position: fixed;
 }
