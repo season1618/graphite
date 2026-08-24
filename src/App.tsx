@@ -3,10 +3,9 @@ import { useState, useEffect } from 'react';
 import CodeEditor from './components/CodeEditor';
 import Canvas from './components/Canvas';
 
-import { type Error, show_error, show_token_list } from './components/data.ts';
+import { type Expr, type Error, show_error, show_token_list } from './components/data.ts';
 import { tokenize } from './components/lexer.ts';
 import { parse } from './components/parser.ts';
-import { evaluate0 } from './components/eval.ts';
 
 function App() {
   const [dragged, setDragged] = useState<boolean>(false);
@@ -15,17 +14,14 @@ function App() {
 
   const [code, setCode] = useState('var x = 1 / (1 + 1 * 2^3);\nvar y = 3;\nx * y');
   const [msg, setMsg] = useState('');
+  const [expr, setExpr] = useState<Expr>({ kind: 'block', exprs: [] });
 
   useEffect(
     () => {
       try {
-        const canvas = document.querySelector('canvas') as HTMLCanvasElement;
-        const context = canvas.getContext('2d') as CanvasRenderingContext2D;
-
         let tokens = tokenize(code);
-        let expr = parse(tokens);
-        let value = evaluate0(expr, context);
-        console.log(value);
+        let expr_next = parse(tokens);
+        setExpr(expr_next);
         setMsg(show_token_list(tokens));
       } catch (err: any) {
         if ('kind' in err) {
@@ -54,7 +50,7 @@ function App() {
           onMouseDown={() => setDragged(true)}
           onMouseUp={() => setDragged(false)}
         />
-        <Canvas width={window.innerWidth - borderX}/>
+        <Canvas width={window.innerWidth - borderX} expr={expr}/>
       </div>
     </div>
   );

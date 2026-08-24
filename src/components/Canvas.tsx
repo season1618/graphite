@@ -1,7 +1,9 @@
 import './Canvas.css';
 import { useState, useEffect } from 'react';
+import { type Expr } from './data.ts';
+import { evaluate0 } from './eval.ts';
 
-function Canvas({ width }: { width: number; }) {
+function Canvas({ width, expr }: { width: number; expr: Expr }) {
   const [mousePressed, setMousePressed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
@@ -51,8 +53,15 @@ function Canvas({ width }: { width: number; }) {
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.translate(origin.x, origin.y);
       context.scale(Math.pow(1.1, logScale), Math.pow(1.1, logScale));
+
+      try {
+        let value = evaluate0(expr, context);
+        console.log(value);
+      } catch (err) {
+        console.log(err);
+      }
     },
-    [origin, logScale, canvasSize, width]
+    [origin, logScale, canvasSize, width, expr]
   );
 
   return (
