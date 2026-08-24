@@ -133,7 +133,7 @@ function dist([x1, y1]: [number, number], [x2, y2]: [number, number]): number {
 }
 
 function curve(f: Closure, a: number, b: number) {
-  const eps = 0.1;
+  const eps = 1;
   let p1 = apply(f, a) as [number, number];
   let p2 = apply(f, b) as [number, number];
   if (dist(p1, p2) < eps) {

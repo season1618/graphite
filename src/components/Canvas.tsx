@@ -6,7 +6,7 @@ import { evaluate0 } from './eval.ts';
 function Canvas({ width, expr }: { width: number; expr: Expr }) {
   const [mousePressed, setMousePressed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [origin, setOrigin] = useState({ x: 0, y: 0 });
+  const [origin, setOrigin] = useState({ x: width/2, y: window.innerHeight/2 });
   const [logScale, setLogScale] = useState(0);
   const [canvasSize, setCanvasSize] = useState({ height: 0, width: 0 });
 
@@ -48,11 +48,11 @@ function Canvas({ width, expr }: { width: number; expr: Expr }) {
       context.font = '20px Consolas';
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      
+
       context.resetTransform();
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.translate(origin.x, origin.y);
-      context.scale(Math.pow(1.1, logScale), Math.pow(1.1, logScale));
+      context.scale(Math.pow(1.1, logScale), -Math.pow(1.1, logScale));
 
       try {
         let value = evaluate0(expr, context);
