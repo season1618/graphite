@@ -19,9 +19,12 @@ function App() {
   useEffect(
     () => {
       try {
+        const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+        const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+
         let tokens = tokenize(code);
         let expr = parse(tokens);
-        let value = evaluate0(expr);
+        let value = evaluate0(expr, context);
         console.log(value);
         setMsg(show_token_list(tokens));
       } catch (err: any) {

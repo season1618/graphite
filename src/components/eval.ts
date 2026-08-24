@@ -1,7 +1,8 @@
 import { type Expr } from './data.ts';
 
 type Name = string
-type Value = number | Closure | Value[]
+type Value = number | Fun | Value[]
+type Fun = 'curve' | Closure
 
 class Bind {
   x: Name;
@@ -48,8 +49,14 @@ class Closure {
   }
 }
 
-export function evaluate0(expr: Expr): Value {
-  return evaluate(expr, new Env());
+type CanvasCtx = CanvasRenderingContext2D
+let context: CanvasCtx;
+
+export function evaluate0(expr: Expr, context_: CanvasCtx): Value {
+  context = context_;
+  let env = new Env();
+  env.push('curve', 'curve');
+  return evaluate(expr, env);
 }
 
 function evaluate(expr: Expr, env: Env): Value {
@@ -81,7 +88,7 @@ function evaluate(expr: Expr, env: Env): Value {
       let { e1, e2 } = expr;
       let v1 = evaluate(e1, env);
       let v2 = evaluate(e2, env);
-      return apply(v1 as Closure, v2);
+      return apply(v1 as Fun, v2);
     }
     case 'var':
       return env.find(expr.name);
@@ -92,12 +99,18 @@ function evaluate(expr: Expr, env: Env): Value {
   }
 }
 
-function apply(fun: Closure, arg: Value): Value {
-  let { env, name, body } = fun;
-  env.push(name, arg);
-  let ret = evaluate(body, env);
-  env.pop();
-  return ret;
+function apply(fun: Fun, arg: Value): Value {
+  if (fun instanceof Closure) {
+    let { env, name, body } = fun;
+    env.push(name, arg);
+    let ret = evaluate(body, env);
+    env.pop();
+    return ret;
+  } else {
+    let [f, [a, b]] = arg as [Closure, [number, number]];
+    curve(f, a, b);
+    return [];
+  }
 }
 
 function arith_op(op: 'add' | 'sub' | 'mul' | 'div' | 'pow', v1: number, v2: number): number {
@@ -112,5 +125,27 @@ function arith_op(op: 'add' | 'sub' | 'mul' | 'div' | 'pow', v1: number, v2: num
       return v1 / v2;
     case 'pow':
       return v1 ** v2;
+  }
+}
+
+function dist([x1, y1]: [number, number], [x2, y2]: [number, number]): number {
+  return Math.hypot(x1 - x2, y1 - y2);
+}
+
+function curve(f: Closure, a: number, b: number) {
+  const eps = 0.1;
+  let p1 = apply(f, a) as [number, number];
+  let p2 = apply(f, b) as [number, number];
+  if (dist(p1, p2) < eps) {
+    let [x1, y1] = p1;
+    let [x2, y2] = p2;
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.stroke();
+  } else {
+    let m = (a + b) / 2;
+    curve(f, a, m);
+    curve(f, m, b);
   }
 }
