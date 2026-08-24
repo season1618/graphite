@@ -1,14 +1,8 @@
 import './CodeEditor.css';
 import { useState, useEffect } from 'react';
-import { type Error, show_error, show_token_list } from './data.ts';
-import { tokenize } from './lexer.ts';
-import { parse } from './parser.ts';
-import { evaluate0 } from './eval.ts';
 
-function CodeEditor({ width }: { width: number; }) {
-  const [code, setCode] = useState('var x = 1 / (1 + 1 * 2^3);\nvar y = 3;\nx * y');
+function CodeEditor({ width, code, msg, setCode }: { width: number; code: string; msg: string; setCode: React.Dispatch<React.SetStateAction<string>> }) {
   const [cursorPos, setCursorPos] = useState(-1);
-  const [msg, setMsg] = useState('');
   const indent = 4;
 
   const [dragged, setDragged] = useState(false);
@@ -23,25 +17,6 @@ function CodeEditor({ width }: { width: number; }) {
       textarea.setSelectionRange(cursorPos, cursorPos);
     },
     [cursorPos]
-  )
-
-  useEffect(
-    () => {
-      try {
-        let tokens = tokenize(code);
-        let expr = parse(tokens);
-        let value = evaluate0(expr);
-        console.log(value);
-        setMsg(show_token_list(tokens));
-      } catch (err: any) {
-        if ('kind' in err) {
-          setMsg(show_error(err as Error, code));
-        } else {
-          console.log(err);
-        }
-      }
-    },
-    [code]
   )
 
   function format(pos: number, nextCode: string) {

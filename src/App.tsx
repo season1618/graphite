@@ -1,12 +1,39 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CodeEditor from './components/CodeEditor';
 import Canvas from './components/Canvas';
+
+import { type Error, show_error, show_token_list } from './components/data.ts';
+import { tokenize } from './components/lexer.ts';
+import { parse } from './components/parser.ts';
+import { evaluate0 } from './components/eval.ts';
 
 function App() {
   const [dragged, setDragged] = useState<boolean>(false);
   const [borderX, setBorderX] = useState<number>(window.innerWidth / 2);
   const width = 5;
+
+  const [code, setCode] = useState('var x = 1 / (1 + 1 * 2^3);\nvar y = 3;\nx * y');
+  const [msg, setMsg] = useState('');
+
+  useEffect(
+    () => {
+      try {
+        let tokens = tokenize(code);
+        let expr = parse(tokens);
+        let value = evaluate0(expr);
+        console.log(value);
+        setMsg(show_token_list(tokens));
+      } catch (err: any) {
+        if ('kind' in err) {
+          setMsg(show_error(err as Error, code));
+        } else {
+          console.log(err);
+        }
+      }
+    },
+    [code]
+  )
 
   return (
     <div id="app">
@@ -18,7 +45,7 @@ function App() {
           }
         }
       >
-        <CodeEditor width={borderX}/>
+        <CodeEditor width={borderX} code={code} msg={msg} setCode={setCode}/>
         <div id="border"
           style={{left: borderX - width/2, width }}
           onMouseDown={() => setDragged(true)}
