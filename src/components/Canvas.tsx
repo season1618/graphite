@@ -1,12 +1,11 @@
-import './Canvas.css';
 import { useState, useEffect } from 'react';
 import { type Expr } from './data.ts';
 import { evaluate0 } from './eval.ts';
 
-function Canvas({ width, expr }: { width: number; expr: Expr }) {
+function Canvas({ height, width, expr }: { height: number; width: number; expr: Expr }) {
   const [mousePressed, setMousePressed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [origin, setOrigin] = useState({ x: width/2, y: window.innerHeight/2 });
+  const [origin, setOrigin] = useState({ x: width/2, y: height/2 });
   const [logScale, setLogScale] = useState(0);
   const [canvasSize, setCanvasSize] = useState({ height: 0, width: 0 });
 

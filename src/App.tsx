@@ -36,21 +36,22 @@ function App() {
 
   return (
     <div id="app">
-      <nav><h2>Graphite</h2></nav>
+      <nav style={{ height: 60 }}><h2>Graphite</h2></nav>
       <div id="flex"
+        style={{ height: window.innerHeight - 60 }}
         onMouseMove={
           (e) => {
             if (dragged) setBorderX(e.clientX);
           }
         }
       >
-        <CodeEditor width={borderX} code={code} msg={msg} setCode={setCode}/>
+        <CodeEditor height={window.innerHeight - 60} width={borderX} code={code} msg={msg} setCode={setCode}/>
         <div id="border"
           style={{left: borderX - width/2, width }}
           onMouseDown={() => setDragged(true)}
           onMouseUp={() => setDragged(false)}
         />
-        <Canvas width={window.innerWidth - borderX} expr={expr}/>
+        <Canvas height={window.innerHeight - 60} width={window.innerWidth - borderX} expr={expr}/>
       </div>
     </div>
   );

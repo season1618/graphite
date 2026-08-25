@@ -5,7 +5,6 @@
 
 nav {
   display: flex;
-  height: 60px;
   margin: 0;
   background-color: black;
 }
@@ -21,7 +20,7 @@ h2 {
 
 #flex {
   display: flex;
-  height: calc(100% - 60px);
+  /* height: calc(100% - 60px); */
   width: 100%;
 }
 

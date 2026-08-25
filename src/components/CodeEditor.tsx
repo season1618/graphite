@@ -1,14 +1,12 @@
 import './CodeEditor.css';
 import { useState, useEffect } from 'react';
 
-function CodeEditor({ width, code, msg, setCode }: { width: number; code: string; msg: string; setCode: React.Dispatch<React.SetStateAction<string>> }) {
+function CodeEditor({ height, width, code, msg, setCode }: { height: number; width: number; code: string; msg: string; setCode: React.Dispatch<React.SetStateAction<string>> }) {
   const [cursorPos, setCursorPos] = useState(-1);
   const indent = 4;
 
   const [dragged, setDragged] = useState(false);
   const [borderY, setBorderY] = useState(400);
-
-  const paneHeight = window.innerHeight - 60;
 
   useEffect(
     () => {
@@ -81,7 +79,7 @@ function CodeEditor({ width, code, msg, setCode }: { width: number; code: string
         onMouseUp={() => setDragged(false)}
       />
       <p id="report"
-        style={{height: paneHeight - borderY}}
+        style={{height: height - borderY}}
       >{msg}</p>
     </div>
   );
