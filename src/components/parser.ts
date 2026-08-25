@@ -1,4 +1,4 @@
-import type { Token, TokenKind, Expr } from './data.ts';
+import type { Token, TokenKind, Expr, Pattern } from './data.ts';
 import isEqual from "lodash/isEqual";
 
 export function parse(tokens: Token[]): Expr {
@@ -124,8 +124,20 @@ class Parser {
           exprs.push(this.expr());
         }
         this.consume({ kind: 'punct', value: ')' });
-        if (exprs.length === 1) return exprs[0];
-        else return { kind: 'tuple', exprs };
+
+        let expr: Expr = exprs.length === 1 ? exprs[0] : { kind: 'tuple', exprs };
+
+        try {
+          let param = expr_to_pattern(expr);
+          if (this.consume_if({ kind: 'punct', value: '->' })) {
+            let body = this.add();
+            return { kind: 'abs', param, body };
+          } else {
+            return expr;
+          }
+        } catch {
+          return expr;
+        }
       }
     }
     switch (token.kind) {
@@ -134,7 +146,7 @@ class Parser {
         this.pos++;
         if (this.consume_if({ kind: 'punct', value: '->' })) {
           let body = this.add();
-          return { kind: 'abs', name, body };
+          return { kind: 'abs', param: name, body };
         } else {
           return { kind: 'var', name };
         }
@@ -198,4 +210,23 @@ class Parser {
       return null;
     }
   }
-} 
+}
+
+// function expr_to_pattern(expr: Expr): Pattern | undefined {
+//   try {
+//     return expr_to_pattern_(expr);
+//   } catch {
+//     return undefined;
+//   }
+// }
+
+function expr_to_pattern(expr: Expr): Pattern {
+  switch (expr.kind) {
+    case 'var':
+      return expr.name;
+    case 'tuple':
+      return expr.exprs.map(expr_to_pattern);
+    default:
+      throw undefined;
+  }
+}

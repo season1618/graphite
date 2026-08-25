@@ -1,4 +1,4 @@
-import { type Expr } from './data.ts';
+import type { Expr, Pattern } from './data.ts';
 
 type Name = string
 type Value = number | Fun | Value[]
@@ -29,8 +29,14 @@ class Env {
     this.env.pop();
   }
 
-  push(x: Name, v: Value) {
-    this.env[this.env.length-1].push(new Bind(x, v));
+  push(x: Pattern, v: Value) {
+    if (typeof x === 'string') {
+      this.env[this.env.length-1].push(new Bind(x, v));
+    } else if (Array.isArray(v)) {
+      for (let i = 0; i < x.length; i++) {
+        this.push(x[i], v[i]);
+      }
+    }
   }
 
   pop() {
@@ -49,12 +55,12 @@ class Env {
 
 class Closure {
   env: Env;
-  name: Name;
+  param: Pattern;
   body: Expr;
 
-  constructor(env: Env, name: Name, body: Expr) {
+  constructor(env: Env, param: Pattern, body: Expr) {
     this.env = env;
-    this.name = name;
+    this.param = param;
     this.body = body;
   }
 }
@@ -76,8 +82,8 @@ function evaluate(expr: Expr, env: Env): Value {
     case 'var':
       return env.find(expr.name);
     case 'abs': {
-      let { name, body } = expr;
-      return new Closure(env, name, body);
+      let { param, body } = expr;
+      return new Closure(env, param, body);
     }
     case 'app': {
       let { e1, e2 } = expr;
@@ -123,10 +129,11 @@ function evaluate(expr: Expr, env: Env): Value {
 
 function apply(fun: Fun, arg: Value): Value {
   if (fun instanceof Closure) {
-    let { env, name, body } = fun;
-    env.push(name, arg);
+    let { env, param, body } = fun;
+    env.push_frame();
+    env.push(param, arg);
     let ret = evaluate(body, env);
-    env.pop();
+    env.pop_frame();
     return ret;
   } else {
     let [f, [a, b]] = arg as [Closure, [number, number]];
