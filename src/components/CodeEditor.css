@@ -16,16 +16,14 @@
 
 #editor {
   box-sizing: border-box;
-  height: 100%;
   width: 100%;
-
-  resize: none;
-  border-style: none;
+  margin: 0;
+  padding: 10px;
 
   white-space: nowrap;
 
-  margin: 0;
-  padding: 10px;
+  resize: none;
+  border-style: none;
 }
 
 #editor:focus {
@@ -45,8 +43,10 @@
 }
 
 #report {
+  box-sizing: border-box;
   margin: 0;
   padding: 10px;
+  overflow-y: auto;
 
   white-space: pre-wrap;
   line-height: 20px;
