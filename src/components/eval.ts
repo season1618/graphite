@@ -61,25 +61,10 @@ export function evaluate0(expr: Expr, context_: CanvasCtx): Value {
 
 function evaluate(expr: Expr, env: Env): Value {
   switch (expr.kind) {
-    case 'block':
-      let vals = expr.exprs.map(e => evaluate(e, env));
-      return vals[vals.length - 1];
-    case 'let':
-      let { name, expr1, expr2 } = expr;
-      let value = evaluate(expr1, env);
-      env.push(name, value);
-      let res = evaluate(expr2, env);
-      env.pop();
-      return res;
-    case 'add':
-    case 'sub':
-    case 'mul':
-    case 'div':
-    case 'pow':
-      let { kind, lhs, rhs } = expr;
-      let v1 = evaluate(lhs, env) as number;
-      let v2 = evaluate(rhs, env) as number;
-      return arith_op(kind, v1, v2);
+    case 'num':
+      return expr.value;
+    case 'var':
+      return env.find(expr.name);
     case 'abs': {
       let { name, body } = expr;
       return new Closure(env, name, body);
@@ -90,12 +75,27 @@ function evaluate(expr: Expr, env: Env): Value {
       let v2 = evaluate(e2, env);
       return apply(v1 as Fun, v2);
     }
-    case 'var':
-      return env.find(expr.name);
-    case 'num':
-      return expr.value;
     case 'tuple':
       return expr.exprs.map(e => evaluate(e, env));
+    case 'add':
+    case 'sub':
+    case 'mul':
+    case 'div':
+    case 'pow':
+      let { kind, lhs, rhs } = expr;
+      let v1 = evaluate(lhs, env) as number;
+      let v2 = evaluate(rhs, env) as number;
+      return arith_op(kind, v1, v2);
+    case 'let':
+      let { name, expr1, expr2 } = expr;
+      let value = evaluate(expr1, env);
+      env.push(name, value);
+      let res = evaluate(expr2, env);
+      env.pop();
+      return res;
+    case 'block':
+      let vals = expr.exprs.map(e => evaluate(e, env));
+      return vals[vals.length - 1];
   }
 }
 

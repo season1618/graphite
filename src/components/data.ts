@@ -9,22 +9,17 @@ export type Token = {
 interface Keyword { kind: 'keyword', value: string }
 interface Punct { kind: 'punct', value: string }
 interface Ident { kind: 'ident', value: string }
-
 export interface Num { kind: 'num', value: number }
 
-export type Expr = Block | Let | Add | Sub | Mul | Div | Pow | Abs | App | Var | Num | Tuple
+export type Expr = Num | Var | Abs | App | Tuple | Bin | Let | Block
 
-interface Block { kind: 'block', exprs: Expr[] }
-interface Let { kind: 'let', name: string, expr1: Expr, expr2: Expr }
-interface Add { kind: 'add', lhs: Expr, rhs: Expr }
-interface Sub { kind: 'sub', lhs: Expr, rhs: Expr }
-interface Mul { kind: 'mul', lhs: Expr, rhs: Expr }
-interface Div { kind: 'div', lhs: Expr, rhs: Expr }
-interface Pow { kind: 'pow', lhs: Expr, rhs: Expr }
+interface Var { kind: 'var', name: string }
 interface Abs { kind: 'abs', name: string, body: Expr }
 interface App { kind: 'app', e1: Expr, e2: Expr }
-interface Var { kind: 'var', name: string }
 interface Tuple { kind: 'tuple', exprs: Expr[] }
+interface Bin { kind: 'add' | 'sub' | 'mul' | 'div' | 'pow', lhs: Expr, rhs: Expr }
+interface Let { kind: 'let', name: string, expr1: Expr, expr2: Expr }
+interface Block { kind: 'block', exprs: Expr[] }
 
 export type Error
   = InvalidToken | NoToken | UnexpectedToken | NotPrim | NotIdent
