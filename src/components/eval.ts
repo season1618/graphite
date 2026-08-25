@@ -15,23 +15,33 @@ class Bind {
 }
 
 class Env {
-  env: Bind[];
+  env: Bind[][];
 
   constructor() {
-    this.env = [];
+    this.env = [[]];
   }
 
-  push(x: Name, v: Value) {
-    this.env.push(new Bind(x, v));
+  push_frame() {
+    this.env.push([]);
   }
 
-  pop() {
+  pop_frame() {
     this.env.pop();
   }
 
+  push(x: Name, v: Value) {
+    this.env[this.env.length-1].push(new Bind(x, v));
+  }
+
+  pop() {
+    this.env[this.env.length-1].pop();
+  }
+
   find(x: Name) {
-    for (let bind of this.env.reverse()) {
-      if (bind.x === x) return bind.v;
+    for (const frame of this.env.reverse()) {
+      for (const bind of frame.reverse()) {
+        if (bind.x === x) return bind.v;
+      }
     }
     throw { kind: 'Not Found', name: x }
   }
