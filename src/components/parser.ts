@@ -23,12 +23,17 @@ class Parser {
     if (this.consume_if({ kind: 'keyword', value: 'var' })) {
       let name = this.ident();
       this.consume({ kind: 'punct', value: '=' });
-      let expr1 = this.let();
+      let expr1 = this.add();
       this.consume({ kind: 'punct', value: ';' });
       let expr2 = this.let();
       return { kind: 'let', name, expr1, expr2 };
     }
-    return this.add();
+    let first = this.add();
+    if (this.consume_if({ kind: 'punct', value: ';' })) {
+      let next = this.let();
+      return { kind: 'seq', first, next };
+    }
+    return first;
   }
 
   add(): Expr {
@@ -128,7 +133,7 @@ class Parser {
         let name = token.value;
         this.pos++;
         if (this.consume_if({ kind: 'punct', value: '->' })) {
-          let body = this.expr();
+          let body = this.add();
           return { kind: 'abs', name, body };
         } else {
           return { kind: 'var', name };

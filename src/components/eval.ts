@@ -94,6 +94,10 @@ function evaluate(expr: Expr, env: Env): Value {
       let v1 = evaluate(lhs, env) as number;
       let v2 = evaluate(rhs, env) as number;
       return binary_op(kind, v1, v2);
+    case 'seq':
+      let { first, next } = expr;
+      evaluate(first, env);
+      return evaluate(next, env);
     case 'let':
       let { name, expr1, expr2 } = expr;
       let value = evaluate(expr1, env);
