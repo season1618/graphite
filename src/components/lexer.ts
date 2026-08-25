@@ -82,8 +82,15 @@ function find_punct(str: string): string | undefined {
 function find_numeric(str: string): [number, number] {
   let i = 0;
   let n = 0;
+  let power = 1;
   while (is_numeric(str[i])) {
     n = 10 * n + Number(str[i]);
+    i++;
+  }
+  if (str[i] === '.') i++;
+  while (is_numeric(str[i])) {
+    power /= 10;
+    n += Number(str[i]) * power;
     i++;
   }
   return [n, i];
