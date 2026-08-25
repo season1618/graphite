@@ -11,12 +11,13 @@ interface Punct { kind: 'punct', value: string }
 interface Ident { kind: 'ident', value: string }
 export interface Num { kind: 'num', value: number }
 
-export type Expr = Num | Var | Abs | App | Tuple | Bin | Let | Block
+export type Expr = Num | Var | Abs | App | Tuple | Uni | Bin | Let | Block
 
 interface Var { kind: 'var', name: string }
 interface Abs { kind: 'abs', name: string, body: Expr }
 interface App { kind: 'app', e1: Expr, e2: Expr }
 interface Tuple { kind: 'tuple', exprs: Expr[] }
+interface Uni { kind: 'neg' | 'sin' | 'cos' | 'tan', arg: Expr }
 interface Bin { kind: 'add' | 'sub' | 'mul' | 'div' | 'pow', lhs: Expr, rhs: Expr }
 interface Let { kind: 'let', name: string, expr1: Expr, expr2: Expr }
 interface Block { kind: 'block', exprs: Expr[] }

@@ -77,11 +77,11 @@ class Parser {
   }
 
   app(): Expr {
-    let fun = this.prim();
+    let fun = this.unary();
     while (true) {
       let pos = this.pos;
       try{
-        let arg = this.prim();
+        let arg = this.unary();
         fun = { kind: 'app', e1: fun, e2: arg };
         continue;
       } catch {
@@ -90,6 +90,22 @@ class Parser {
       }
     }
     return fun;
+  }
+
+  unary(): Expr {
+    if (this.consume_if({ kind: 'punct', value: '-' })) {
+      return { kind: 'neg', arg: this.unary() };
+    }
+    if (this.consume_if({ kind: 'keyword', value: 'sin' })) {
+      return { kind: 'sin', arg: this.unary() };
+    }
+    if (this.consume_if({ kind: 'keyword', value: 'cos' })) {
+      return { kind: 'cos', arg: this.unary() };
+    }
+    if (this.consume_if({ kind: 'keyword', value: 'tan' })) {
+      return { kind: 'tan', arg: this.unary() };
+    }
+    return this.prim();
   }
 
   prim(): Expr {
