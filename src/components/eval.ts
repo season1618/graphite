@@ -14,43 +14,28 @@ class Bind {
   }
 }
 
-class Env {
-  env: Bind[][];
+type Env = null | { env: Env, bind: Bind }
 
-  constructor() {
-    this.env = [[]];
+function find(env: Env, name: Name): Value {
+  if (env === null) throw { kind: 'Not Found', name };
+  else {
+    let { env: env_, bind } = env;
+    if (bind.x === name) return bind.v;
+    else return find(env_, name);
   }
+}
 
-  push_frame() {
-    this.env.push([]);
-  }
-
-  pop_frame() {
-    this.env.pop();
-  }
-
-  push(x: Pattern, v: Value) {
-    if (typeof x === 'string') {
-      this.env[this.env.length-1].push(new Bind(x, v));
-    } else if (Array.isArray(v)) {
-      for (let i = 0; i < x.length; i++) {
-        this.push(x[i], v[i]);
-      }
+function extend(env: Env, param: Pattern, value: Value): Env {
+  if (typeof param === 'string') {
+    return { env, bind: new Bind(param, value) };
+  } else if (Array.isArray(value)) {
+    let binds = [];
+    for (let i = 0; i < param.length; i++) {
+      binds.push([param[i], value[i]]);
     }
+    return binds.reduce((env, [x, v]) => extend(env, x as Pattern, v as Value), env);
   }
-
-  pop() {
-    this.env[this.env.length-1].pop();
-  }
-
-  find(x: Name) {
-    for (const frame of this.env.reverse()) {
-      for (const bind of frame.reverse()) {
-        if (bind.x === x) return bind.v;
-      }
-    }
-    throw { kind: 'Not Found', name: x }
-  }
+  throw "";
 }
 
 class Closure {
@@ -70,14 +55,13 @@ let context: CanvasCtx;
 
 export function execute(prog: Prog, context_: CanvasCtx) {
   context = context_;
-  let env = new Env();
-  env.push('curve', 'curve');
+  let env = extend(null, 'curve', 'curve');
   
   for (const stmt of prog) {
     if (stmt.kind === 'let') {
       let { name, expr } = stmt;
       let val = evaluate(expr, env);
-      env.push(name, val);
+      env = extend(env, name, val);
     } else {
       let expr = stmt;
       evaluate(expr, env);
@@ -90,7 +74,7 @@ function evaluate(expr: Expr, env: Env): Value {
     case 'num':
       return expr.value;
     case 'var':
-      return env.find(expr.name);
+      return find(env, expr.name);
     case 'abs': {
       let { param, body } = expr;
       return new Closure(env, param, body);
@@ -129,11 +113,7 @@ function evaluate(expr: Expr, env: Env): Value {
 function apply(fun: Fun, arg: Value): Value {
   if (fun instanceof Closure) {
     let { env, param, body } = fun;
-    env.push_frame();
-    env.push(param, arg);
-    let ret = evaluate(body, env);
-    env.pop_frame();
-    return ret;
+    return evaluate(body, extend(env, param, arg));
   } else {
     let [f, [a, b]] = arg as [Closure, [number, number]];
     curve(f, a, b);
