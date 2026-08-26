@@ -1,4 +1,4 @@
-import type { Prog, Expr, Pattern } from './data.ts';
+import type { Prog, Stmt, Expr, Pattern } from './data.ts';
 
 type Name = string
 type Value = number | Fun | Value[]
@@ -15,6 +15,7 @@ class Bind {
 }
 
 type Env = null | { env: Env, bind: Bind }
+type Ref = (_: any) => [number, number]
 
 function find(env: Env, name: Name): Value {
   if (env === null) throw { kind: 'Not Found', name };
@@ -40,11 +41,13 @@ function extend(env: Env, param: Pattern, value: Value): Env {
 
 class Closure {
   env: Env;
+  ref: Ref;
   param: Pattern;
   body: Expr;
 
-  constructor(env: Env, param: Pattern, body: Expr) {
+  constructor(env: Env, ref: Ref, param: Pattern, body: Expr) {
     this.env = env;
+    this.ref = ref;
     this.param = param;
     this.body = body;
   }
@@ -56,20 +59,32 @@ let context: CanvasCtx;
 export function execute(prog: Prog, context_: CanvasCtx) {
   context = context_;
   let env = extend(null, 'curve', 'curve');
-  
+  execute_stmt(prog, env, x => x);
+}
+
+function execute_stmt(prog: Stmt[], env: Env, ref: Ref) {
   for (const stmt of prog) {
-    if (stmt.kind === 'let') {
-      let { name, expr } = stmt;
-      let val = evaluate(expr, env);
-      env = extend(env, name, val);
-    } else {
-      let expr = stmt;
-      evaluate(expr, env);
+    switch (stmt.kind) {
+      case 'let':
+        let { name, expr } = stmt;
+        let val = evaluate(expr, env, ref);
+        env = extend(env, name, val);
+        continue;
+      case 'put':
+        let { trans, stmts } = stmt;
+        let f = evaluate(trans, env, ref) as Fun;
+        execute_stmt(stmts, env, x => ref(apply(f, x, ref)));
+        continue;
+      default: {
+        let expr = stmt;
+        evaluate(expr, env, ref);
+        continue;
+      }
     }
   }
 }
 
-function evaluate(expr: Expr, env: Env): Value {
+function evaluate(expr: Expr, env: Env, ref: Ref): Value {
   switch (expr.kind) {
     case 'num':
       return expr.value;
@@ -77,22 +92,22 @@ function evaluate(expr: Expr, env: Env): Value {
       return find(env, expr.name);
     case 'abs': {
       let { param, body } = expr;
-      return new Closure(env, param, body);
+      return new Closure(env, ref, param, body);
     }
     case 'app': {
       let { e1, e2 } = expr;
-      let v1 = evaluate(e1, env);
-      let v2 = evaluate(e2, env);
-      return apply(v1 as Fun, v2);
+      let v1 = evaluate(e1, env, ref);
+      let v2 = evaluate(e2, env, ref);
+      return apply(v1 as Fun, v2, ref);
     }
     case 'tuple':
-      return expr.exprs.map(e => evaluate(e, env));
+      return expr.exprs.map(e => evaluate(e, env, ref));
     case 'neg':
     case 'sin':
     case 'cos':
     case 'tan': {
       let { kind, arg } = expr;
-      let val = evaluate(arg, env) as number;
+      let val = evaluate(arg, env, ref) as number;
       return unary_op(kind, val);
     }
     case 'add':
@@ -101,22 +116,22 @@ function evaluate(expr: Expr, env: Env): Value {
     case 'div':
     case 'pow':
       let { kind, lhs, rhs } = expr;
-      let v1 = evaluate(lhs, env) as number;
-      let v2 = evaluate(rhs, env) as number;
+      let v1 = evaluate(lhs, env, ref) as number;
+      let v2 = evaluate(rhs, env, ref) as number;
       return binary_op(kind, v1, v2);
     case 'block':
-      let vals = expr.exprs.map(e => evaluate(e, env));
+      let vals = expr.exprs.map(e => evaluate(e, env, ref));
       return vals[vals.length - 1];
   }
 }
 
-function apply(fun: Fun, arg: Value): Value {
+function apply(fun: Fun, arg: Value, ref: Ref): Value {
   if (fun instanceof Closure) {
-    let { env, param, body } = fun;
-    return evaluate(body, extend(env, param, arg));
+    let { env, ref, param, body } = fun;
+    return evaluate(body, extend(env, param, arg), ref);
   } else {
     let [f, [a, b]] = arg as [Closure, [number, number]];
-    curve(f, a, b);
+    curve(f, a, b, ref);
     return [];
   }
 }
@@ -153,10 +168,10 @@ function dist([x1, y1]: [number, number], [x2, y2]: [number, number]): number {
   return Math.hypot(x1 - x2, y1 - y2);
 }
 
-function curve(f: Closure, a: number, b: number) {
+function curve(f: Closure, a: number, b: number, ref: Ref) {
   const eps = 1;
-  let p1 = apply(f, a) as [number, number];
-  let p2 = apply(f, b) as [number, number];
+  let p1 = ref(apply(f, a, x => x)) as [number, number];
+  let p2 = ref(apply(f, b, x => x)) as [number, number];
   if (dist(p1, p2) < eps) {
     let [x1, y1] = p1;
     let [x2, y2] = p2;
@@ -166,7 +181,7 @@ function curve(f: Closure, a: number, b: number) {
     context.stroke();
   } else {
     let m = (a + b) / 2;
-    curve(f, a, m);
-    curve(f, m, b);
+    curve(f, a, m, ref);
+    curve(f, m, b, ref);
   }
 }

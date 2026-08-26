@@ -24,6 +24,15 @@ class Parser {
   }
 
   stmt(): Stmt {
+    if (this.consume_if({ kind: 'keyword', value: 'put' })) {
+      let trans = this.expr();
+      this.consume({ kind: 'punct', value: ':' });
+      let stmts: Stmt[] = [];
+      while (!this.consume_if({ kind: 'keyword', value: 'end' })) {
+        stmts.push(this.stmt());
+      }
+      return { kind: 'put', trans, stmts };
+    }
     if (this.consume_if({ kind: 'keyword', value: 'var' })) {
       let name = this.ident();
       let params: Pattern[] = [];
