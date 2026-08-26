@@ -133,7 +133,9 @@ function apply(fun: Fun, arg: Value, ref: Ref): Value {
     return evaluate(body, extend(env, param, arg), ref);
   } else {
     let [f, [a, b]] = arg as [Closure, [number, number]];
-    curve(f, a, b, ref);
+    let pa = ref(apply(f, a, x => x)) as D;
+    let pb = ref(apply(f, b, x => x)) as D;
+    curve(f, a, b, pa, pb, ref);
     return [];
   }
 }
@@ -170,20 +172,19 @@ function dist([x1, y1]: D, [x2, y2]: D): number {
   return Math.hypot(x1 - x2, y1 - y2);
 }
 
-function curve(f: Closure, a: number, b: number, ref: Ref) {
+function curve(f: Closure, a: number, b: number, pa: D, pb: D, ref: Ref) {
   const eps = 1;
-  let p1 = ref(apply(f, a, x => x)) as D;
-  let p2 = ref(apply(f, b, x => x)) as D;
-  if (dist(p1, p2) < eps) {
-    let [x1, y1] = p1;
-    let [x2, y2] = p2;
+  if (dist(pa, pb) < eps) {
+    let [x1, y1] = pa;
+    let [x2, y2] = pb;
     context.beginPath();
     context.moveTo(x1, y1);
     context.lineTo(x2, y2);
     context.stroke();
   } else {
     let m = (a + b) / 2;
-    curve(f, a, m, ref);
-    curve(f, m, b, ref);
+    let pm = ref(apply(f, m, x => x)) as D;
+    curve(f, a, m, pa, pm, ref);
+    curve(f, m, b, pm, pb, ref);
   }
 }
