@@ -14,8 +14,9 @@ class Bind {
   }
 }
 
+type D = [number, number]
 type Env = null | { env: Env, bind: Bind }
-type Ref = (_: any) => [number, number]
+type Ref = (_: any) => D
 
 function find(env: Env, name: Name): Value {
   if (env === null) throw { kind: 'Not Found', name };
@@ -164,14 +165,14 @@ function binary_op(op: 'add' | 'sub' | 'mul' | 'div' | 'pow', v1: number, v2: nu
   }
 }
 
-function dist([x1, y1]: [number, number], [x2, y2]: [number, number]): number {
+function dist([x1, y1]: D, [x2, y2]: D): number {
   return Math.hypot(x1 - x2, y1 - y2);
 }
 
 function curve(f: Closure, a: number, b: number, ref: Ref) {
   const eps = 1;
-  let p1 = ref(apply(f, a, x => x)) as [number, number];
-  let p2 = ref(apply(f, b, x => x)) as [number, number];
+  let p1 = ref(apply(f, a, x => x)) as D;
+  let p2 = ref(apply(f, b, x => x)) as D;
   if (dist(p1, p2) < eps) {
     let [x1, y1] = p1;
     let [x2, y2] = p2;
