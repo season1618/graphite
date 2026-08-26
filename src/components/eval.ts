@@ -57,10 +57,11 @@ class Closure {
 type CanvasCtx = CanvasRenderingContext2D
 let context: CanvasCtx;
 
-export function execute(prog: Prog, context_: CanvasCtx) {
+export function execute(prog: Prog, context_: CanvasCtx, scale: number) {
   context = context_;
   let env = extend(null, 'curve', 'curve');
-  execute_stmt(prog, env, x => x);
+  let ref: Ref = ([x, y]: D) => [scale * x, scale * y];
+  execute_stmt(prog, env, ref);
 }
 
 function execute_stmt(prog: Stmt[], env: Env, ref: Ref) {

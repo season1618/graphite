@@ -51,10 +51,10 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
       context.resetTransform();
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.translate(origin.x, origin.y);
-      context.scale(Math.pow(1.1, logScale), -Math.pow(1.1, logScale));
+      context.scale(1, -1);
 
       try {
-        execute(prog, context);
+        execute(prog, context, Math.pow(1.1, logScale));
       } catch (err) {
         console.log(err);
       }
