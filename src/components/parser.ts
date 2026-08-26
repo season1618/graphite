@@ -1,9 +1,9 @@
-import type { Token, TokenKind, Expr, Pattern } from './data.ts';
+import type { Token, TokenKind, Prog, Stmt, Expr, Pattern } from './data.ts';
 import isEqual from "lodash/isEqual";
 
-export function parse(tokens: Token[]): Expr {
+export function parse(tokens: Token[]): Prog {
   let parser = new Parser(tokens);
-  return parser.expr();
+  return parser.prog();
 }
 
 class Parser {
@@ -15,25 +15,30 @@ class Parser {
     this.pos = 0;
   }
 
-  expr(): Expr {
-    return this.let();
+  prog(): Prog {
+    let prog = [];
+    while (this.pos < this.tokens.length) {
+      prog.push(this.stmt());
+    }
+    return prog;
   }
 
-  let(): Expr {
+  stmt(): Stmt {
     if (this.consume_if({ kind: 'keyword', value: 'var' })) {
       let name = this.ident();
       this.consume({ kind: 'punct', value: '=' });
-      let expr1 = this.add();
+      let expr = this.expr();
       this.consume({ kind: 'punct', value: ';' });
-      let expr2 = this.let();
-      return { kind: 'let', name, expr1, expr2 };
+      return { kind: 'let', name, expr };
+    } else {
+      let expr = this.expr();
+      this.consume({ kind: 'punct', value: ';' });
+      return expr;
     }
-    let first = this.add();
-    if (this.consume_if({ kind: 'punct', value: ';' })) {
-      let next = this.let();
-      return { kind: 'seq', first, next };
-    }
-    return first;
+  }
+
+  expr(): Expr {
+    return this.add();
   }
 
   add(): Expr {
@@ -130,7 +135,7 @@ class Parser {
         try {
           let param = expr_to_pattern(expr);
           if (this.consume_if({ kind: 'punct', value: '->' })) {
-            let body = this.add();
+            let body = this.expr();
             return { kind: 'abs', param, body };
           } else {
             return expr;
@@ -145,7 +150,7 @@ class Parser {
         let name = token.value;
         this.pos++;
         if (this.consume_if({ kind: 'punct', value: '->' })) {
-          let body = this.add();
+          let body = this.expr();
           return { kind: 'abs', param: name, body };
         } else {
           return { kind: 'var', name };

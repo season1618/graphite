@@ -1,4 +1,4 @@
-import type { Expr, Pattern } from './data.ts';
+import type { Prog, Expr, Pattern } from './data.ts';
 
 type Name = string
 type Value = number | Fun | Value[]
@@ -68,11 +68,21 @@ class Closure {
 type CanvasCtx = CanvasRenderingContext2D
 let context: CanvasCtx;
 
-export function evaluate0(expr: Expr, context_: CanvasCtx): Value {
+export function execute(prog: Prog, context_: CanvasCtx) {
   context = context_;
   let env = new Env();
   env.push('curve', 'curve');
-  return evaluate(expr, env);
+  
+  for (const stmt of prog) {
+    if (stmt.kind === 'let') {
+      let { name, expr } = stmt;
+      let val = evaluate(expr, env);
+      env.push(name, val);
+    } else {
+      let expr = stmt;
+      evaluate(expr, env);
+    }
+  }
 }
 
 function evaluate(expr: Expr, env: Env): Value {
@@ -110,17 +120,6 @@ function evaluate(expr: Expr, env: Env): Value {
       let v1 = evaluate(lhs, env) as number;
       let v2 = evaluate(rhs, env) as number;
       return binary_op(kind, v1, v2);
-    case 'seq':
-      let { first, next } = expr;
-      evaluate(first, env);
-      return evaluate(next, env);
-    case 'let':
-      let { name, expr1, expr2 } = expr;
-      let value = evaluate(expr1, env);
-      env.push(name, value);
-      let res = evaluate(expr2, env);
-      env.pop();
-      return res;
     case 'block':
       let vals = expr.exprs.map(e => evaluate(e, env));
       return vals[vals.length - 1];

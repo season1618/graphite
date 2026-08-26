@@ -11,8 +11,12 @@ interface Punct { kind: 'punct', value: string }
 interface Ident { kind: 'ident', value: string }
 export interface Num { kind: 'num', value: number }
 
-export type Expr = Num | Var | Abs | App | Tuple | Uni | Bin | Seq | Let | Block
+export type Prog = Stmt[]
+export type Stmt = Expr | Let
+export type Expr = Num | Var | Abs | App | Tuple | Uni | Bin | Block
 export type Pattern = string | Pattern[];
+
+interface Let { kind: 'let', name: string, expr: Expr }
 
 interface Var { kind: 'var', name: string }
 interface Abs { kind: 'abs', param: Pattern, body: Expr }
@@ -20,8 +24,6 @@ interface App { kind: 'app', e1: Expr, e2: Expr }
 interface Tuple { kind: 'tuple', exprs: Expr[] }
 interface Uni { kind: 'neg' | 'sin' | 'cos' | 'tan', arg: Expr }
 interface Bin { kind: 'add' | 'sub' | 'mul' | 'div' | 'pow', lhs: Expr, rhs: Expr }
-interface Seq { kind: 'seq', first: Expr, next: Expr }
-interface Let { kind: 'let', name: string, expr1: Expr, expr2: Expr }
 interface Block { kind: 'block', exprs: Expr[] }
 
 export type Error
