@@ -26,9 +26,14 @@ class Parser {
   stmt(): Stmt {
     if (this.consume_if({ kind: 'keyword', value: 'var' })) {
       let name = this.ident();
-      this.consume({ kind: 'punct', value: '=' });
-      let expr = this.expr();
+      let params: Pattern[] = [];
+      while (!this.consume_if({ kind: 'punct', value: '=' })) {
+        params.push(this.pattern());
+      }
+      let body0 = this.expr();
       this.consume({ kind: 'punct', value: ';' });
+
+      let expr: Expr = params.reduceRight((body, param) => { return { kind: 'abs', param, body }; }, body0);
       return { kind: 'let', name, expr };
     } else {
       let expr = this.expr();
@@ -160,6 +165,24 @@ class Parser {
         return { kind: 'num', value: token.value };
       default:
         throw { kind: 'not primary expression', token: this.current() };
+    }
+  }
+
+  pattern(): Pattern {
+    if (this.consume_if({ kind: 'punct', value: '(' })) {
+      if (this.consume_if({ kind: 'punct', value: ')' })) {
+        return [];
+      } else {
+        let pats = [this.pattern()];
+        while (this.consume_if({ kind: 'punct', value: ',' })) {
+          pats.push(this.pattern());
+        }
+        this.consume({ kind: 'punct', value: ')' });
+
+        return pats.length === 1 ? pats[0] : pats;
+      }
+    } else {
+      return this.ident();
     }
   }
 
