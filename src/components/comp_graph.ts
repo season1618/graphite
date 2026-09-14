@@ -11,34 +11,38 @@ interface Uni { kind: 'neg' | 'rec' | 'exp' | 'log' | 'sin' | 'cos' | 'tan', val
 interface Bin { kind: 'add' | 'sub' | 'mul' | 'div' | 'pow', value: number, diff: number, lhs: Node, rhs: Node }
 
 class CompGraph {
-  inputs: Node[];
+  inputs: Var[];
   nodes: Node[];
   root: Node;
 
-  constructor(inputs: Node[], nodes: Node[], root: Node) {
+  constructor(inputs: Var[], nodes: Node[], root: Node) {
     this.inputs = inputs;
     this.nodes = nodes;
     this.root = root;
   }
 
-  compute(vals: number[]) {
+  evaluate(vals: number[]) {
     for (let i = 0; i < this.inputs.length; i++) {
       this.inputs[i].value = vals[i];
     }
-    this.nodes.forEach(node => compute(node));
+    this.nodes.forEach(evaluate);
   }
 
-  update(diff: number) {
-    this.inputs.forEach(node => { if (node.kind !== 'const') node.diff = 0; });
+  adjust(diff: number) {
+    this.inputs.forEach(node => { node.diff = 0; });
     this.nodes.forEach(node => { if (node.kind !== 'const') node.diff = 0; });
     if (this.root.kind === 'const') return;
     this.root.diff = 1;
-    this.nodes.toReversed().forEach(node => autodiff(node));
-    // this.inputs.forEach(node => { if (node.kind !== 'const') node.value += node.diff; });
+    this.nodes.toReversed().forEach(evaluate_diff);
+
+    let n = this.inputs.length;
+    this.inputs.forEach(node => { node.value += diff / (node.diff * n); });
+
+    this.nodes.forEach(evaluate);
   }
 }
 
-function compute(node: Node) {
+function evaluate(node: Node) {
   switch (node.kind) {
     case 'neg':
       node.value = -node.arg.value;
@@ -79,7 +83,7 @@ function compute(node: Node) {
   }
 }
 
-function autodiff(node: Node) {
+function evaluate_diff(node: Node) {
   if (node.kind === 'const') return;
   let diff = node.diff;
   switch (node.kind) {
@@ -162,4 +166,3 @@ let m7: Node = { kind: 'rec', value: 0, diff: 0, arg: m6 };
 let m8: Node = { kind: 'log', value: 0, diff: 0, arg: m7 };
 let m9: Node = { kind: 'mul', value: 0, diff: 0, lhs: m8, rhs: c3 };
 export let graph2 = new CompGraph([w1, x1, w2, x2], [c1, c2, c3, m1, m2, m3, m4, m5, m6, m7, m8, m9], m9);
-
