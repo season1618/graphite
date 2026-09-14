@@ -16,7 +16,7 @@ class Bind {
 
 type D = [number, number]
 type Env = null | { env: Env, bind: Bind }
-type Ref = null | { ref: Ref, trans: any }
+type Ref = null | { ref: Ref, trans: Closure }
 
 function find(env: Env, name: Name): Value {
   if (env === null) throw { kind: 'Not Found', name };
@@ -60,7 +60,12 @@ let context: CanvasCtx;
 export function execute(prog: Prog, context_: CanvasCtx, scale: number) {
   context = context_;
   let env = extend(null, 'curve', 'curve');
-  let ref: Ref = { ref: null, trans: ([x, y]: any) => [scale * x, scale * y] };
+
+  let scale_expr: Expr = { kind: 'num', value: scale };
+  let scalex_expr: Expr = { kind: 'mul', lhs: scale_expr, rhs: { kind: 'var', name: 'x' } };
+  let scaley_expr: Expr = { kind: 'mul', lhs: scale_expr, rhs: { kind: 'var', name: 'y' } };
+  let body: Expr = { kind: 'tuple', exprs: [scalex_expr, scaley_expr] };
+  let ref: Ref = { ref: null, trans: new Closure(null, null, ['x', 'y'], body) };
   execute_stmt(prog, env, ref);
 }
 
@@ -74,8 +79,8 @@ function execute_stmt(prog: Stmt[], env: Env, ref: Ref) {
         continue;
       case 'put':
         let { trans, stmts } = stmt;
-        let f = evaluate(trans, env, ref) as Fun;
-        execute_stmt(stmts, env, { ref, trans: (x: any) => apply(f, x, ref) });
+        let f = evaluate(trans, env, ref) as Closure;
+        execute_stmt(stmts, env, { ref, trans: f });
         continue;
       default: {
         let expr = stmt;
@@ -144,7 +149,7 @@ function frame_apply(ref: Ref, point: Value): D {
   if (ref === null) return point as D;
   else {
     let { ref: ref_, trans } = ref;
-    return frame_apply(ref_, trans(point));
+    return frame_apply(ref_, apply(trans, point, null));
   }
 }
 
