@@ -1,21 +1,17 @@
 type Value = number | Value[]
 
-// interface App { kind: 'app', e1: Cell, e2: Cell }
-
-type Node = Const | Var | Uni | Bin
-type Cell<V> = { value: V, diff: V }
+export type Node = Base | Const | Uni | Bin
+interface Base { kind: 'base', value: number, diff: number }
 interface Const { kind: 'const', value: Value }
-interface Tuple { kind: 'tuple', cell: Cell<Value[]>, exprs: Node[] }
-interface Var { kind: 'var', value: number, diff: number }
 interface Uni { kind: 'neg' | 'rec' | 'exp' | 'log' | 'sin' | 'cos' | 'tan', value: number, diff: number, arg: Node }
 interface Bin { kind: 'add' | 'sub' | 'mul' | 'div' | 'pow', value: number, diff: number, lhs: Node, rhs: Node }
 
 class CompGraph {
-  inputs: Var[];
+  inputs: Base[];
   nodes: Node[];
   root: Node;
 
-  constructor(inputs: Var[], nodes: Node[], root: Node) {
+  constructor(inputs: Base[], nodes: Node[], root: Node) {
     this.inputs = inputs;
     this.nodes = nodes;
     this.root = root;
@@ -44,6 +40,9 @@ class CompGraph {
 
 function evaluate(node: Node) {
   switch (node.kind) {
+    case 'base':
+    case 'const':
+      break;
     case 'neg':
       node.value = -node.arg.value;
       break;
@@ -87,6 +86,8 @@ function evaluate_diff(node: Node) {
   if (node.kind === 'const') return;
   let diff = node.diff;
   switch (node.kind) {
+    case 'base':
+      break;
     case 'neg':
       update_diff(node.arg, -diff);
       break;
@@ -142,17 +143,17 @@ function update_diff(node: Node, diff: number) {
   if (node.kind !== 'const') node.diff += diff;
 }
 
-let a: Node = { kind: 'var', value: 0, diff: 0 };
-let x: Node = { kind: 'var', value: 0, diff: 0 };
-let b: Node = { kind: 'var', value: 0, diff: 0 };
+let a: Node = { kind: 'base', value: 0, diff: 0 };
+let x: Node = { kind: 'base', value: 0, diff: 0 };
+let b: Node = { kind: 'base', value: 0, diff: 0 };
 let n1: Node = { kind: 'mul', value: 0, diff: 0, lhs: a, rhs: x };
 let n2: Node = { kind: 'add', value: 0, diff: 0, lhs: n1, rhs: b };
 export let graph1 = new CompGraph([a, x, b], [n1, n2], n2);
 
-let w1: Node = { kind: 'var', value: 0, diff: 0 };
-let x1: Node = { kind: 'var', value: 0, diff: 0 };
-let w2: Node = { kind: 'var', value: 0, diff: 0 };
-let x2: Node = { kind: 'var', value: 0, diff: 0 };
+let w1: Node = { kind: 'base', value: 0, diff: 0 };
+let x1: Node = { kind: 'base', value: 0, diff: 0 };
+let w2: Node = { kind: 'base', value: 0, diff: 0 };
+let x2: Node = { kind: 'base', value: 0, diff: 0 };
 let c1: Node = { kind: 'const', value: -1 };
 let c2: Node = { kind: 'const', value: 1 };
 let c3: Node = { kind: 'const', value: -1 };
