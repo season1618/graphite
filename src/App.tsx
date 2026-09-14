@@ -6,6 +6,7 @@ import Canvas from './components/Canvas';
 import { type Prog, type Error, show_error, show_token_list } from './components/data.ts';
 import { tokenize } from './components/lexer.ts';
 import { parse } from './components/parser.ts';
+import { graph1, graph2 } from './components/comp_graph.ts';
 
 function App() {
   const [dragged, setDragged] = useState<boolean>(false);
@@ -23,6 +24,13 @@ function App() {
         let prog_next = parse(tokens);
         setProg(prog_next);
         setMsg(show_token_list(tokens));
+        
+        graph1.compute([-2, 3, 4]);
+        graph1.update(1);
+        console.log(graph1);
+        graph2.compute([1, 1, 0.5, -1]);
+        graph2.update(1);
+        console.log(graph2);
       } catch (err: any) {
         if ('kind' in err) {
           setMsg(show_error(err as Error, code));
