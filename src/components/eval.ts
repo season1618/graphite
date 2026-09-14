@@ -16,7 +16,7 @@ class Bind {
 
 type D = [number, number]
 type Env = null | { env: Env, bind: Bind }
-type Ref = (_: any) => D
+type Ref = null | { ref: Ref, trans: any }
 
 function find(env: Env, name: Name): Value {
   if (env === null) throw { kind: 'Not Found', name };
@@ -60,7 +60,7 @@ let context: CanvasCtx;
 export function execute(prog: Prog, context_: CanvasCtx, scale: number) {
   context = context_;
   let env = extend(null, 'curve', 'curve');
-  let ref: Ref = ([x, y]: D) => [scale * x, scale * y];
+  let ref: Ref = { ref: null, trans: ([x, y]: any) => [scale * x, scale * y] };
   execute_stmt(prog, env, ref);
 }
 
@@ -75,7 +75,7 @@ function execute_stmt(prog: Stmt[], env: Env, ref: Ref) {
       case 'put':
         let { trans, stmts } = stmt;
         let f = evaluate(trans, env, ref) as Fun;
-        execute_stmt(stmts, env, x => ref(apply(f, x, ref)));
+        execute_stmt(stmts, env, { ref, trans: (x: any) => apply(f, x, ref) });
         continue;
       default: {
         let expr = stmt;
@@ -133,10 +133,18 @@ function apply(fun: Fun, arg: Value, ref: Ref): Value {
     return evaluate(body, extend(env, param, arg), ref);
   } else {
     let [f, [a, b]] = arg as [Closure, [number, number]];
-    let pa = ref(apply(f, a, x => x)) as D;
-    let pb = ref(apply(f, b, x => x)) as D;
+    let pa = frame_apply(ref, apply(f, a, null)) as D;
+    let pb = frame_apply(ref, apply(f, b, null)) as D;
     curve(f, a, b, pa, pb, ref);
     return [];
+  }
+}
+
+function frame_apply(ref: Ref, point: Value): D {
+  if (ref === null) return point as D;
+  else {
+    let { ref: ref_, trans } = ref;
+    return frame_apply(ref_, trans(point));
   }
 }
 
@@ -183,7 +191,7 @@ function curve(f: Closure, a: number, b: number, pa: D, pb: D, ref: Ref) {
     context.stroke();
   } else {
     let m = (a + b) / 2;
-    let pm = ref(apply(f, m, x => x)) as D;
+    let pm = frame_apply(ref, apply(f, m, null)) as D;
     curve(f, a, m, pa, pm, ref);
     curve(f, m, b, pm, pb, ref);
   }
