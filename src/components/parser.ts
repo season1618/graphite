@@ -120,6 +120,12 @@ class Parser {
     if (this.consume_if({ kind: 'punct', value: '-' })) {
       return { kind: 'neg', arg: this.unary() };
     }
+    if (this.consume_if({ kind: 'keyword', value: 'exp' })) {
+      return { kind: 'exp', arg: this.unary() };
+    }
+    if (this.consume_if({ kind: 'keyword', value: 'log' })) {
+      return { kind: 'log', arg: this.unary() };
+    }
     if (this.consume_if({ kind: 'keyword', value: 'sin' })) {
       return { kind: 'sin', arg: this.unary() };
     }

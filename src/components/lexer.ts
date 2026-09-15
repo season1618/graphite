@@ -1,6 +1,6 @@
 import type { Token, TokenKind } from './data.ts';
 
-const keywords = ["put", "end", "var", "sin", "cos", "tan"];
+const keywords = ["put", "end", "var", "exp", "log", "sin", "cos", "tan"];
 const puncts = ["[", "]", "{", "}", "(", ")", "->", "==", "=", "+", "-", "*", "/", "^", ",", ":", ";"];
 
 function tokenize(code: string): Token[] {

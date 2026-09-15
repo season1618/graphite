@@ -126,6 +126,9 @@ class Compiler {
       case 'tuple':
         return expr.exprs.map(e => this.evaluate(e, env, ref));
       case 'neg':
+      case 'rec':
+      case 'exp':
+      case 'log':
       case 'sin':
       case 'cos':
       case 'tan': {
@@ -188,33 +191,5 @@ class Compiler {
     let node: Node = { kind, value: 0, diff: 0, lhs, rhs };
     this.middles.push(node);
     return node;
-  }
-}
-
-function unary_op(op: 'neg' | 'sin' | 'cos' | 'tan', v: number): number {
-  switch (op) {
-    case 'neg':
-      return -v;
-    case 'sin':
-      return Math.sin(v);
-    case 'cos':
-      return Math.cos(v);
-    case 'tan':
-      return Math.tan(v);
-  }
-}
-
-function binary_op(op: 'add' | 'sub' | 'mul' | 'div' | 'pow', v1: number, v2: number): number {
-  switch (op) {
-    case 'add':
-      return v1 + v2;
-    case 'sub':
-      return v1 - v2;
-    case 'mul':
-      return v1 * v2;
-    case 'div':
-      return v1 / v2;
-    case 'pow':
-      return v1 ** v2;
   }
 }

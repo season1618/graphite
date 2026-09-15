@@ -119,6 +119,9 @@ function evaluate_(expr: Expr, env: Env, ref: Ref): Value {
     case 'tuple':
       return expr.exprs.map(e => evaluate_(e, env, ref));
     case 'neg':
+    case 'rec':
+    case 'exp':
+    case 'log':
     case 'sin':
     case 'cos':
     case 'tan': {
@@ -156,10 +159,16 @@ function frame_apply(ref: Ref, point: Value): [number, number] {
   }
 }
 
-function unary_op(op: 'neg' | 'sin' | 'cos' | 'tan', v: number): number {
+function unary_op(op: 'neg' | 'rec' | 'exp' | 'log' | 'sin' | 'cos' | 'tan', v: number): number {
   switch (op) {
     case 'neg':
       return -v;
+    case 'rec':
+      return 1/v;
+    case 'exp':
+      return Math.exp(v);
+    case 'log':
+      return Math.log(v);
     case 'sin':
       return Math.sin(v);
     case 'cos':
@@ -235,40 +244,20 @@ function evaluate(node: Node) {
     case 'const':
       break;
     case 'neg':
-      node.value = -node.arg.value;
-      break;
     case 'rec':
-      node.value = 1 / (node.arg.value as number);
-      break;
     case 'exp':
-      node.value = Math.exp(node.arg.value as number);
-      break;
     case 'log':
-      node.value = Math.log(node.arg.value as number);
-      break;
     case 'sin':
-      node.value = Math.sin(node.arg.value as number);
-      break;
     case 'cos':
-      node.value = Math.cos(node.arg.value as number);
-      break;
     case 'tan':
-      node.value = Math.tan(node.arg.value as number);
+      node.value = unary_op(node.kind, node.arg.value as number);
       break;
     case 'add':
-      node.value = (node.lhs.value as number) + (node.rhs.value as number);
-      break;
     case 'sub':
-      node.value = (node.lhs.value as number) - (node.rhs.value as number);
-      break;
     case 'mul':
-      node.value = (node.lhs.value as number) * (node.rhs.value as number);
-      break;
     case 'div':
-      node.value = (node.lhs.value as number) / (node.rhs.value as number);
-      break;
     case 'pow':
-      node.value = (node.lhs.value as number) ** (node.rhs.value as number);
+      node.value = binary_op(node.kind, node.lhs.value as number, node.rhs.value as number);
       break;
   }
 }

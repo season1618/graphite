@@ -23,7 +23,7 @@ interface Var { kind: 'var', name: string }
 interface Abs { kind: 'abs', param: Pattern, body: Expr }
 interface App { kind: 'app', e1: Expr, e2: Expr }
 interface Tuple { kind: 'tuple', exprs: Expr[] }
-interface Uni { kind: 'neg' | 'sin' | 'cos' | 'tan', arg: Expr }
+interface Uni { kind: 'neg' | 'rec' | 'exp' | 'log' | 'sin' | 'cos' | 'tan', arg: Expr }
 interface Bin { kind: 'add' | 'sub' | 'mul' | 'div' | 'pow', lhs: Expr, rhs: Expr }
 interface Block { kind: 'block', exprs: Expr[] }
 
