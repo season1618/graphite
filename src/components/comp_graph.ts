@@ -102,6 +102,7 @@ function convert(val: Val): Value {
 
 function evaluate_(expr: Expr, env: Env, ref: Ref): Value {
   switch (expr.kind) {
+    case 'param':
     case 'num':
       return expr.value;
     case 'var':
@@ -206,10 +207,7 @@ export class CompGraph {
     this.curves = curves;
   }
 
-  evaluate(vals: number[]) {
-    for (let i = 0; i < this.inputs.length; i++) {
-      this.inputs[i].value = vals[i];
-    }
+  evaluate() {
     this.nodes.forEach(evaluate);
   }
 
@@ -323,17 +321,17 @@ function update_diff(node: Node, diff: number) {
   if (node.kind !== 'const') node.diff += diff;
 }
 
-let a: Node = { kind: 'base', value: 0, diff: 0 };
-let x: Node = { kind: 'base', value: 0, diff: 0 };
-let b: Node = { kind: 'base', value: 0, diff: 0 };
+let a: Node = { kind: 'base', value: -2, diff: 0 };
+let x: Node = { kind: 'base', value: 3, diff: 0 };
+let b: Node = { kind: 'base', value: 4, diff: 0 };
 let n1: Node = { kind: 'mul', value: 0, diff: 0, lhs: a, rhs: x };
 let n2: Node = { kind: 'add', value: 0, diff: 0, lhs: n1, rhs: b };
 export let graph1 = new CompGraph([a, x, b], [n1, n2], [[n1, n2]], []);
 
-let w1: Node = { kind: 'base', value: 0, diff: 0 };
-let x1: Node = { kind: 'base', value: 0, diff: 0 };
-let w2: Node = { kind: 'base', value: 0, diff: 0 };
-let x2: Node = { kind: 'base', value: 0, diff: 0 };
+let w1: Node = { kind: 'base', value: 1, diff: 0 };
+let x1: Node = { kind: 'base', value: 1, diff: 0 };
+let w2: Node = { kind: 'base', value: 0.5, diff: 0 };
+let x2: Node = { kind: 'base', value: -1, diff: 0 };
 let c1: Node = { kind: 'const', value: -1 };
 let c2: Node = { kind: 'const', value: 1 };
 let c3: Node = { kind: 'const', value: -1 };

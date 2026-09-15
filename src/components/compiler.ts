@@ -109,6 +109,8 @@ class Compiler {
 
   evaluate(expr: Expr, env: Env, ref: Ref): Value {
     switch (expr.kind) {
+      case 'param':
+        return this.create_base(expr.value);
       case 'num':
         return this.create_const(expr.value);
       case 'var':
@@ -173,6 +175,12 @@ class Compiler {
       let { ref: ref_, trans } = ref;
       return this.frame_apply(ref_, this.apply(trans, point, null));
     }
+  }
+
+  create_base(value: number): Base {
+    let node: Base = { kind: 'base', value, diff: 0 };
+    this.inputs.push(node);
+    return node;
   }
 
   create_const(value: number): Node {

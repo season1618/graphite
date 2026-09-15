@@ -13,12 +13,13 @@ export interface Num { kind: 'num', value: number }
 
 export type Prog = Stmt[]
 export type Stmt = Expr | Let | Put
-export type Expr = Num | Var | Abs | App | Tuple | Uni | Bin | Block
+export type Expr = Param | Num | Var | Abs | App | Tuple | Uni | Bin | Block
 export type Pattern = string | Pattern[];
 
 interface Let { kind: 'let', name: string, expr: Expr }
 interface Put { kind: 'put', trans: Expr, stmts: Stmt[] }
 
+interface Param { kind: 'param', value: number };
 interface Var { kind: 'var', name: string }
 interface Abs { kind: 'abs', param: Pattern, body: Expr }
 interface App { kind: 'app', e1: Expr, e2: Expr }

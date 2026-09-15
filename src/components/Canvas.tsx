@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { type Prog } from './data.ts';
 import { compile } from './compiler.ts';
-import { CompGraph } from './comp_graph.ts';
+import { type D, CompGraph } from './comp_graph.ts';
 
 function Canvas({ height, width, prog }: { height: number; width: number; prog: Prog }) {
   const [mousePressed, setMousePressed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [mouseFocus, setMouseFocus] = useState<D | undefined>(undefined);
+
   const [origin, setOrigin] = useState({ x: width/2, y: height/2 });
   const [logScale, setLogScale] = useState(0);
   const [canvasSize, setCanvasSize] = useState({ height: 0, width: 0 });
@@ -14,7 +16,27 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
 
   function updateMousePos(x: number, y: number) {
     if (mousePressed) {
-      setOrigin({ x: origin.x + x - mousePos.x, y: origin.y + y - mousePos.y });
+      if (mouseFocus === undefined) setOrigin({ x: origin.x + x - mousePos.x, y: origin.y + y - mousePos.y });
+      else {
+        const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+
+        const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+        context.font = '20px Consolas';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+
+        context.resetTransform();
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.translate(origin.x, origin.y);
+        context.scale(1, -1);
+
+        let mouse_x = mousePos.x - origin.x;
+        let mouse_y = -(mousePos.y - origin.y);
+        comp_graph.adjust_point(mouseFocus, [mouse_x - (mouseFocus[0].value as number), mouse_y - (mouseFocus[1].value as number)]);
+        comp_graph.render(context);
+      }
     }
     setMousePos({ x, y });
   }
@@ -68,7 +90,7 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
       context.translate(origin.x, origin.y);
       context.scale(1, -1);
 
-      comp_graph.evaluate([]);
+      comp_graph.evaluate();
       console.log(comp_graph);
       comp_graph.render(context);
     },
@@ -78,7 +100,13 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
   return (
     <canvas
       style={{width}}
-      onMouseDown={() => setMousePressed(true)}
+      onMouseDown={() => {
+        setMousePressed(true);
+        let mouse_x = mousePos.x - origin.x;
+        let mouse_y = -(mousePos.y - origin.y);
+        setMouseFocus(comp_graph.points.find(([x, y]: D) => Math.hypot(x.value as number - mouse_x, y.value as number - mouse_y) < 10));
+        console.log(mouseFocus);
+      }}
       onMouseUp={() => setMousePressed(false)}
       onMouseMove={
         (e) => {

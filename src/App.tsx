@@ -22,13 +22,14 @@ function App() {
       try {
         let tokens = tokenize(code);
         let prog_next = parse(tokens);
+        console.log(tokens, prog_next);
         setProg(prog_next);
         setMsg(show_token_list(tokens));
 
-        graph1.evaluate([-2, 3, 4]);
+        graph1.evaluate();
         graph1.adjust_point(graph1.points[0], [0, 1]);
         console.log(graph1);
-        graph2.evaluate([1, 1, 0.5, -1]);
+        graph2.evaluate();
         graph2.adjust_point(graph2.points[0], [1, 0.1]);
         console.log(graph2);
       } catch (err: any) {
