@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import CodeEditor from './components/CodeEditor';
 import Canvas from './components/Canvas';
 
-import { type Prog, type Error, show_error, show_token_list } from './components/data.ts';
+import { type Token, type Prog, type Error, show_error, show_token_list } from './components/data.ts';
 import { tokenize } from './components/lexer.ts';
 import { parse } from './components/parser.ts';
 
@@ -14,14 +14,13 @@ function App() {
 
   const [code, setCode] = useState('let r = 100;\nlet f = x -> (r * cos x, r * sin x);\ncurve(f, (-3, 3));');
   const [msg, setMsg] = useState('');
+  const [tokens, setTokens] = useState<Token[]>(tokenize(code));
   const [prog, setProg] = useState<Prog>([]);
 
   useEffect(
     () => {
       try {
-        let tokens = tokenize(code);
         let prog_next = parse(tokens);
-        console.log(tokens);
         setProg(prog_next);
         setMsg(show_token_list(tokens));
       } catch (err: any) {
@@ -32,7 +31,7 @@ function App() {
         }
       }
     },
-    [code]
+    [tokens]
   )
 
   return (
@@ -46,13 +45,13 @@ function App() {
           }
         }
       >
-        <CodeEditor height={window.innerHeight - 60} width={borderX} code={code} msg={msg} setCode={setCode}/>
+        <CodeEditor height={window.innerHeight - 60} width={borderX} code={code} msg={msg} setCode={setCode} setMsg={setMsg} setTokens={setTokens}/>
         <div id="border"
           style={{left: borderX - width/2, width }}
           onMouseDown={() => setDragged(true)}
           onMouseUp={() => setDragged(false)}
         />
-        <Canvas height={window.innerHeight - 60} width={window.innerWidth - borderX} prog={prog}/>
+        <Canvas height={window.innerHeight - 60} width={window.innerWidth - borderX} setCode={setCode} tokens={tokens} prog={prog}/>
       </div>
     </div>
   );

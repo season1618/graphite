@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { type Prog } from './data.ts';
+import { type Token, type Prog } from './data.ts';
+import { serialize } from './lexer.ts';
 import { compile } from './compiler.ts';
 import { type D, CompGraph, get_value } from './comp_graph.ts';
 
-function Canvas({ height, width, prog }: { height: number; width: number; prog: Prog }) {
+function Canvas({ height, width, setCode, tokens, prog }: { height: number; width: number; setCode: React.Dispatch<React.SetStateAction<string>>; tokens: Token[], prog: Prog }) {
   const [mousePressed, setMousePressed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [mouseFocus, setMouseFocus] = useState<D | undefined>(undefined);
@@ -35,6 +36,7 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
         let mouse_x = mousePos.x - origin.x;
         let mouse_y = -(mousePos.y - origin.y);
         comp_graph.adjust_point(mouseFocus, [mouse_x, mouse_y]);
+        setCode(serialize(tokens));
         comp_graph.render(context);
       }
     }

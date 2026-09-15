@@ -1,7 +1,10 @@
 import './CodeEditor.css';
 import { useState, useEffect } from 'react';
 
-function CodeEditor({ height, width, code, msg, setCode }: { height: number; width: number; code: string; msg: string; setCode: React.Dispatch<React.SetStateAction<string>> }) {
+import { type Token, type Error, show_error } from './data.ts';
+import { tokenize } from './lexer.ts';
+
+function CodeEditor({ height, width, code, msg, setCode, setMsg, setTokens }: { height: number; width: number; code: string; msg: string; setCode: React.Dispatch<React.SetStateAction<string>>, setMsg: React.Dispatch<React.SetStateAction<string>>, setTokens: React.Dispatch<React.SetStateAction<Token[]>> }) {
   const [cursorPos, setCursorPos] = useState(-1);
   const indent = 4;
 
@@ -33,14 +36,28 @@ function CodeEditor({ height, width, code, msg, setCode }: { height: number; wid
           break;
       }
     }
-    setCode(nextCode);
+    computeTokens(nextCode);
     setCursorPos(pos + 1);
   }
 
   function formatTab(pos: number) {
     let nextCode = code.substring(0, pos) + ' '.repeat(indent) + code.substring(pos, code.length);
-    setCode(nextCode);
+    computeTokens(nextCode);
     setCursorPos(pos + indent);
+  }
+
+  function computeTokens(code: string) {
+    setCode(code);
+    try {
+      let tokens = tokenize(code);
+      setTokens(tokens);
+    } catch (err: any) {
+      if ('kind' in err) {
+        setMsg(show_error(err as Error, code));
+      } else {
+        console.log(err);
+      }
+    }
   }
 
   return (
