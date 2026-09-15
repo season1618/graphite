@@ -2,7 +2,7 @@ import type { Prog, Stmt, Expr, Pattern } from './data.ts';
 import { type Base, type Node, type D, CompGraph, Curve } from './comp_graph.ts';
 
 type Name = string
-type Value = Node | Fun | Value[]
+export type Value = number | Node | Fun | Value[]
 type Fun = 'curve' | Closure
 
 class Bind {
@@ -54,11 +54,7 @@ export class Closure {
   }
 }
 
-type CanvasCtx = CanvasRenderingContext2D
-let context: CanvasCtx;
-
-export function execute(prog: Prog, context_: CanvasCtx, scale: number): CompGraph {
-  context = context_;
+export function execute(prog: Prog, scale: number): CompGraph {
   let env = extend(null, 'curve', 'curve');
 
   let scale_expr: Expr = { kind: 'num', value: scale };
@@ -75,16 +71,18 @@ class Compiler {
   inputs: Base[];
   middles: Node[];
   points: D[];
+  curves: Curve[];
 
   constructor() {
     this.inputs = [];
     this.middles = [];
     this.points = [];
+    this.curves = [];
   }
 
   compile(prog: Stmt[], env: Env, ref: Ref): CompGraph {
     this.execute_stmt(prog, env, ref);
-    return new CompGraph(this.inputs, this.middles, this.points);
+    return new CompGraph(this.inputs, this.middles, this.points, this.curves);
   }
 
   execute_stmt(prog: Stmt[], env: Env, ref: Ref) {
@@ -158,7 +156,7 @@ class Compiler {
       let [f, [a, b]] = arg as [Closure, [Node, Node]];
       let pa = this.frame_apply(ref, this.apply(f, a, null)) as D;
       let pb = this.frame_apply(ref, this.apply(f, b, null)) as D;
-      new Curve(f, a, b, pa, pb, ref);
+      this.curves.push(new Curve(f, a, b, pa, pb, ref));
       return [];
     }
   }
@@ -220,24 +218,3 @@ function binary_op(op: 'add' | 'sub' | 'mul' | 'div' | 'pow', v1: number, v2: nu
       return v1 ** v2;
   }
 }
-
-// function dist([x1, y1]: D, [x2, y2]: D): number {
-//   return Math.hypot(x1 - x2, y1 - y2);
-// }
-
-// function curve(f: Closure, a: number, b: number, pa: D, pb: D, ref: Ref) {
-//   const eps = 1;
-//   if (dist(pa, pb) < eps) {
-//     let [x1, y1] = pa;
-//     let [x2, y2] = pb;
-//     context.beginPath();
-//     context.moveTo(x1, y1);
-//     context.lineTo(x2, y2);
-//     context.stroke();
-//   } else {
-//     let m = (a + b) / 2;
-//     let pm = frame_apply(ref, apply(f, m, null)) as D;
-//     curve(f, a, m, pa, pm, ref);
-//     curve(f, m, b, pm, pb, ref);
-//   }
-// }

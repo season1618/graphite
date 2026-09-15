@@ -54,8 +54,10 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
       context.scale(1, -1);
 
       try {
-        let graph = execute(prog, context, Math.pow(1.1, logScale));
+        let graph = execute(prog, Math.pow(1.1, logScale));
+        graph.evaluate([]);
         console.log(graph);
+        graph.render(context);
       } catch (err) {
         console.log(err);
       }
