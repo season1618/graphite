@@ -1,5 +1,5 @@
 import type { Prog, Stmt, Expr, Pattern } from './data.ts';
-import { type Base, type Node, CompGraph, Curve } from './comp_graph.ts';
+import { type Base, type Node, type D, CompGraph, Curve } from './comp_graph.ts';
 
 type Name = string
 type Value = Node | Fun | Value[]
@@ -15,7 +15,6 @@ class Bind {
   }
 }
 
-type D = [Node, Node]
 type Env = null | { env: Env, bind: Bind }
 export type Ref = null | { ref: Ref, trans: Closure }
 
@@ -75,7 +74,7 @@ export function execute(prog: Prog, context_: CanvasCtx, scale: number): CompGra
 class Compiler {
   inputs: Base[];
   middles: Node[];
-  outputs: Node[];
+  outputs: D[];
 
   constructor() {
     this.inputs = [];

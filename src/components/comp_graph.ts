@@ -1,10 +1,10 @@
-import { sum } from 'lodash';
 import type { Closure, Ref } from './eval.ts';
 
 type Value = number | Value[]
 
 export type Node = Base | Const | Uni | Bin
 export interface Base { kind: 'base', value: number, diff: number }
+export type D = [Node, Node]
 interface Const { kind: 'const', value: Value }
 interface Uni { kind: 'neg' | 'rec' | 'exp' | 'log' | 'sin' | 'cos' | 'tan', value: number, diff: number, arg: Node }
 interface Bin { kind: 'add' | 'sub' | 'mul' | 'div' | 'pow', value: number, diff: number, lhs: Node, rhs: Node }
@@ -29,12 +29,12 @@ export class Curve {
 
 export class CompGraph {
   inputs: Base[];
-  middles: Node[];
-  outputs: Node[];
+  nodes: Node[];
+  outputs: D[];
 
-  constructor(inputs: Base[], middles: Node[], outputs: Node[]) {
+  constructor(inputs: Base[], nodes: Node[], outputs: D[]) {
     this.inputs = inputs;
-    this.middles = middles;
+    this.nodes = nodes;
     this.outputs = outputs;
   }
 
@@ -42,26 +42,27 @@ export class CompGraph {
     for (let i = 0; i < this.inputs.length; i++) {
       this.inputs[i].value = vals[i];
     }
-    this.middles.forEach(evaluate);
-    this.outputs.forEach(evaluate);
+    this.nodes.forEach(evaluate);
   }
 
-  adjust(root: Node, diff: number) { // root in outputs
+  adjust_point([x, y]: [Node, Node], [dx, dy]: [number, number]) {
+    this.adjust(x, dx);
+    this.adjust(y, dy);
+  }
+
+  adjust(root: Node, diff: number) { // root in nodes
     this.inputs.forEach(node => { node.diff = 0; });
-    this.middles.forEach(node => { if (node.kind !== 'const') node.diff = 0; });
-    this.outputs.forEach(node => { if (node.kind !== 'const') node.diff = 0; });
+    this.nodes.forEach(node => { if (node.kind !== 'const') node.diff = 0; });
 
     if (root.kind === 'const') return;
     root.diff = 1;
-    evaluate_diff(root);
-    this.middles.toReversed().forEach(evaluate_diff);
+    this.nodes.toReversed().forEach(evaluate_diff);
 
     // gradient descent
     let sum_square = this.inputs.map(node => node.diff).reduce((acc, g) => acc + g*g, 0);
     this.inputs.forEach(node => { node.value += node.diff / sum_square * diff; });
 
-    this.middles.forEach(evaluate);
-    this.outputs.forEach(evaluate);
+    this.nodes.forEach(evaluate);
   }
 }
 
@@ -175,7 +176,7 @@ let x: Node = { kind: 'base', value: 0, diff: 0 };
 let b: Node = { kind: 'base', value: 0, diff: 0 };
 let n1: Node = { kind: 'mul', value: 0, diff: 0, lhs: a, rhs: x };
 let n2: Node = { kind: 'add', value: 0, diff: 0, lhs: n1, rhs: b };
-export let graph1 = new CompGraph([a, x, b], [n1], [n2]);
+export let graph1 = new CompGraph([a, x, b], [n1, n2], [[n1, n2]]);
 
 let w1: Node = { kind: 'base', value: 0, diff: 0 };
 let x1: Node = { kind: 'base', value: 0, diff: 0 };
@@ -193,4 +194,4 @@ let m6: Node = { kind: 'add', value: 0, diff: 0, lhs: m5, rhs: c2 };
 let m7: Node = { kind: 'rec', value: 0, diff: 0, arg: m6 };
 let m8: Node = { kind: 'log', value: 0, diff: 0, arg: m7 };
 let m9: Node = { kind: 'mul', value: 0, diff: 0, lhs: m8, rhs: c3 };
-export let graph2 = new CompGraph([w1, x1, w2, x2], [c1, c2, c3, m1, m2, m3, m4, m5, m6, m7, m8], [m9]);
+export let graph2 = new CompGraph([w1, x1, w2, x2], [c1, c2, c3, m1, m2, m3, m4, m5, m6, m7, m8, m9], [[c1, m9]]);
