@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { type Prog } from './data.ts';
 import { compile } from './compiler.ts';
+import { CompGraph } from './comp_graph.ts';
 
 function Canvas({ height, width, prog }: { height: number; width: number; prog: Prog }) {
   const [mousePressed, setMousePressed] = useState(false);
@@ -8,6 +9,8 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
   const [origin, setOrigin] = useState({ x: width/2, y: height/2 });
   const [logScale, setLogScale] = useState(0);
   const [canvasSize, setCanvasSize] = useState({ height: 0, width: 0 });
+
+  const [comp_graph, setCompGraph] = useState(new CompGraph([], [], [], []));
 
   function updateMousePos(x: number, y: number) {
     if (mousePressed) {
@@ -39,6 +42,18 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
 
   useEffect(
     () => {
+      try {
+        let graph = compile(prog, Math.pow(1.1, logScale));
+        setCompGraph(graph);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    [logScale, prog]
+  );
+
+  useEffect(
+    () => {
       const canvas = document.querySelector('canvas') as HTMLCanvasElement;
       canvas.width = canvas.clientWidth;
       canvas.height = canvas.clientHeight;
@@ -53,16 +68,11 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
       context.translate(origin.x, origin.y);
       context.scale(1, -1);
 
-      try {
-        let graph = compile(prog, Math.pow(1.1, logScale));
-        graph.evaluate([]);
-        console.log(graph);
-        graph.render(context);
-      } catch (err) {
-        console.log(err);
-      }
+      comp_graph.evaluate([]);
+      console.log(comp_graph);
+      comp_graph.render(context);
     },
-    [origin, logScale, canvasSize, width, prog]
+    [origin, canvasSize, width, comp_graph]
   );
 
   return (
