@@ -74,17 +74,17 @@ export function execute(prog: Prog, context_: CanvasCtx, scale: number): CompGra
 class Compiler {
   inputs: Base[];
   middles: Node[];
-  outputs: D[];
+  points: D[];
 
   constructor() {
     this.inputs = [];
     this.middles = [];
-    this.outputs = [];
+    this.points = [];
   }
 
   compile(prog: Stmt[], env: Env, ref: Ref): CompGraph {
     this.execute_stmt(prog, env, ref);
-    return new CompGraph(this.inputs, this.middles, this.outputs);
+    return new CompGraph(this.inputs, this.middles, this.points);
   }
 
   execute_stmt(prog: Stmt[], env: Env, ref: Ref) {
@@ -164,7 +164,10 @@ class Compiler {
   }
 
   frame_apply(ref: Ref, point: Value): D {
-    if (ref === null) return point as D;
+    if (ref === null) {
+      this.points.push(point as D);
+      return point as D;
+    }
     else {
       let { ref: ref_, trans } = ref;
       return this.frame_apply(ref_, this.apply(trans, point, null));

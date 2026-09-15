@@ -30,12 +30,12 @@ export class Curve {
 export class CompGraph {
   inputs: Base[];
   nodes: Node[];
-  outputs: D[];
+  points: D[];
 
-  constructor(inputs: Base[], nodes: Node[], outputs: D[]) {
+  constructor(inputs: Base[], nodes: Node[], points: D[]) {
     this.inputs = inputs;
     this.nodes = nodes;
-    this.outputs = outputs;
+    this.points = points;
   }
 
   evaluate(vals: number[]) {
