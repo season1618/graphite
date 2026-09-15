@@ -1,4 +1,4 @@
-import type { Prog, Stmt, Expr, Pattern } from './data.ts';
+import type { Prog, Expr, Pattern } from './data.ts';
 import { type Base, type Node, type D, CompGraph, Curve } from './comp_graph.ts';
 
 type Name = string
@@ -54,7 +54,7 @@ export class Closure {
   }
 }
 
-export function execute(prog: Prog, scale: number): CompGraph {
+export function compile(prog: Prog, scale: number): CompGraph {
   let env = extend(null, 'curve', 'curve');
 
   let scale_expr: Expr = { kind: 'num', value: scale };
@@ -80,12 +80,12 @@ class Compiler {
     this.curves = [];
   }
 
-  compile(prog: Stmt[], env: Env, ref: Ref): CompGraph {
-    this.execute_stmt(prog, env, ref);
+  compile(prog: Prog, env: Env, ref: Ref): CompGraph {
+    this.execute(prog, env, ref);
     return new CompGraph(this.inputs, this.middles, this.points, this.curves);
   }
 
-  execute_stmt(prog: Stmt[], env: Env, ref: Ref) {
+  execute(prog: Prog, env: Env, ref: Ref) {
     for (const stmt of prog) {
       switch (stmt.kind) {
         case 'let':
@@ -96,7 +96,7 @@ class Compiler {
         case 'put':
           let { trans, stmts } = stmt;
           let f = this.evaluate(trans, env, ref) as Closure;
-          this.execute_stmt(stmts, env, { ref, trans: f });
+          this.execute(stmts, env, { ref, trans: f });
           continue;
         default: {
           let expr = stmt;

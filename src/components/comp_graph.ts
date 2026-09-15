@@ -1,5 +1,5 @@
 import type { Expr, Pattern } from './data.ts';
-import { type Value as Val, Closure, type Ref } from './eval.ts';
+import { type Value as Val, Closure, type Ref } from './compiler.ts';
 
 type Value = number | Closure | Value[]
 
