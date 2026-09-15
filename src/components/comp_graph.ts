@@ -1,3 +1,4 @@
+import { sum } from 'lodash';
 import type { Closure, Ref } from './eval.ts';
 
 type Value = number | Value[]
@@ -55,8 +56,9 @@ export class CompGraph {
     evaluate_diff(root);
     this.middles.toReversed().forEach(evaluate_diff);
 
-    let n = this.inputs.length;
-    this.inputs.forEach(node => { node.value += diff / (node.diff * n); });
+    // gradient descent
+    let sum_square = this.inputs.map(node => node.diff).reduce((acc, g) => acc + g*g, 0);
+    this.inputs.forEach(node => { node.value += node.diff / sum_square * diff; });
 
     this.middles.forEach(evaluate);
     this.outputs.forEach(evaluate);
