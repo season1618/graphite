@@ -8,33 +8,38 @@ interface Bin { kind: 'add' | 'sub' | 'mul' | 'div' | 'pow', value: number, diff
 
 class CompGraph {
   inputs: Base[];
-  nodes: Node[];
-  root: Node;
+  middles: Node[];
+  outputs: Node[];
 
-  constructor(inputs: Base[], nodes: Node[], root: Node) {
+  constructor(inputs: Base[], middles: Node[], outputs: Node[]) {
     this.inputs = inputs;
-    this.nodes = nodes;
-    this.root = root;
+    this.middles = middles;
+    this.outputs = outputs;
   }
 
   evaluate(vals: number[]) {
     for (let i = 0; i < this.inputs.length; i++) {
       this.inputs[i].value = vals[i];
     }
-    this.nodes.forEach(evaluate);
+    this.middles.forEach(evaluate);
+    this.outputs.forEach(evaluate);
   }
 
-  adjust(diff: number) {
+  adjust(root: Node, diff: number) { // root in outputs
     this.inputs.forEach(node => { node.diff = 0; });
-    this.nodes.forEach(node => { if (node.kind !== 'const') node.diff = 0; });
-    if (this.root.kind === 'const') return;
-    this.root.diff = 1;
-    this.nodes.toReversed().forEach(evaluate_diff);
+    this.middles.forEach(node => { if (node.kind !== 'const') node.diff = 0; });
+    this.outputs.forEach(node => { if (node.kind !== 'const') node.diff = 0; });
+
+    if (root.kind === 'const') return;
+    root.diff = 1;
+    evaluate_diff(root);
+    this.middles.toReversed().forEach(evaluate_diff);
 
     let n = this.inputs.length;
     this.inputs.forEach(node => { node.value += diff / (node.diff * n); });
 
-    this.nodes.forEach(evaluate);
+    this.middles.forEach(evaluate);
+    this.outputs.forEach(evaluate);
   }
 }
 
@@ -148,7 +153,7 @@ let x: Node = { kind: 'base', value: 0, diff: 0 };
 let b: Node = { kind: 'base', value: 0, diff: 0 };
 let n1: Node = { kind: 'mul', value: 0, diff: 0, lhs: a, rhs: x };
 let n2: Node = { kind: 'add', value: 0, diff: 0, lhs: n1, rhs: b };
-export let graph1 = new CompGraph([a, x, b], [n1, n2], n2);
+export let graph1 = new CompGraph([a, x, b], [n1], [n2]);
 
 let w1: Node = { kind: 'base', value: 0, diff: 0 };
 let x1: Node = { kind: 'base', value: 0, diff: 0 };
@@ -166,4 +171,4 @@ let m6: Node = { kind: 'add', value: 0, diff: 0, lhs: m5, rhs: c2 };
 let m7: Node = { kind: 'rec', value: 0, diff: 0, arg: m6 };
 let m8: Node = { kind: 'log', value: 0, diff: 0, arg: m7 };
 let m9: Node = { kind: 'mul', value: 0, diff: 0, lhs: m8, rhs: c3 };
-export let graph2 = new CompGraph([w1, x1, w2, x2], [c1, c2, c3, m1, m2, m3, m4, m5, m6, m7, m8, m9], m9);
+export let graph2 = new CompGraph([w1, x1, w2, x2], [c1, c2, c3, m1, m2, m3, m4, m5, m6, m7, m8], [m9]);

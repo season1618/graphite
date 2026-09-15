@@ -26,10 +26,10 @@ function App() {
         setMsg(show_token_list(tokens));
 
         graph1.evaluate([-2, 3, 4]);
-        graph1.adjust(1);
+        graph1.adjust(graph1.outputs[0], 1);
         console.log(graph1);
         graph2.evaluate([1, 1, 0.5, -1]);
-        graph2.adjust(0.1);
+        graph2.adjust(graph2.outputs[0], 0.1);
         console.log(graph2);
       } catch (err: any) {
         if ('kind' in err) {
