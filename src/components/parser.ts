@@ -33,7 +33,7 @@ class Parser {
       }
       return { kind: 'put', trans, stmts };
     }
-    if (this.consume_if({ kind: 'keyword', value: 'var' })) {
+    if (this.consume_if({ kind: 'keyword', value: 'let' })) {
       let name = this.ident();
       let params: Pattern[] = [];
       while (!this.consume_if({ kind: 'punct', value: '=' })) {

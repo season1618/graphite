@@ -13,7 +13,7 @@ function App() {
   const [borderX, setBorderX] = useState<number>(window.innerWidth / 2);
   const width = 5;
 
-  const [code, setCode] = useState('var r = 100;\nvar f = x -> (r * cos x, r * sin x);\ncurve(f, (-3, 3));');
+  const [code, setCode] = useState('let r = 100;\nlet f = x -> (r * cos x, r * sin x);\ncurve(f, (-3, 3));');
   const [msg, setMsg] = useState('');
   const [prog, setProg] = useState<Prog>([]);
 
