@@ -3,7 +3,7 @@ import type { Token, TokenKind } from './data.ts';
 const keywords = ["put", "end", "let", "exp", "log", "sin", "cos", "tan"];
 const puncts = ["[", "]", "{", "}", "(", ")", "->", "==", "=", "+", "-", "*", "/", "^", ",", "?", ":", ";"];
 
-function tokenize(code: string): Token[] {
+export function tokenize(code: string): Token[] {
   let tokens: Token[] = [];
   let line = 1;
   let col = 0;
@@ -16,9 +16,11 @@ function tokenize(code: string): Token[] {
       continue;
     }
 
-    if (is_whitespace(code[i])) {
+    let spaces = 0;
+    while (is_whitespace(code[i])) {
       i++;
       col++;
+      spaces++;
       continue;
     }
 
@@ -27,6 +29,7 @@ function tokenize(code: string): Token[] {
       let len = punct.length;
       tokens.push({ 
         line, coll: col, colr: col + len,
+        spaces,
         token: { kind: 'punct', value: punct }
       });
       i += len;
@@ -38,6 +41,7 @@ function tokenize(code: string): Token[] {
       let [n, len] = find_numeric(code.substring(i));
       tokens.push({ 
         line, coll: col, colr: col + len,
+        spaces,
         token: { kind: 'num', value: n }
       });
       i += len;
@@ -52,6 +56,7 @@ function tokenize(code: string): Token[] {
         { kind: 'ident', value: ident };
       tokens.push({ 
         line, coll: col, colr: col + len,
+        spaces,
         token
       });
       i += len;
@@ -102,7 +107,18 @@ function find_ident(str: string): [string, number] {
     i++;
   }
   return [str.substring(0, i), i];
-
 }
 
-export { tokenize };
+export function serialize(tokens: Token[]): string {
+  let code = '';
+  let cur_line = 1;
+  for (let token_ of tokens) {
+    let { line, spaces, token } = token_;
+    if (cur_line < line) {
+      code += '\n'.repeat(line - cur_line);
+      cur_line = line;
+    }
+    code += `${' '.repeat(spaces)}${token.value}`;
+  }
+  return code;
+}

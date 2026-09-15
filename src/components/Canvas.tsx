@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { type Prog } from './data.ts';
 import { compile } from './compiler.ts';
-import { type D, CompGraph } from './comp_graph.ts';
+import { type D, CompGraph, get_value } from './comp_graph.ts';
 
 function Canvas({ height, width, prog }: { height: number; width: number; prog: Prog }) {
   const [mousePressed, setMousePressed] = useState(false);
@@ -104,8 +104,7 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
         setMousePressed(true);
         let mouse_x = mousePos.x - origin.x;
         let mouse_y = -(mousePos.y - origin.y);
-        setMouseFocus(comp_graph.points.find(([x, y]: D) => Math.hypot(x.value as number - mouse_x, y.value as number - mouse_y) < 10));
-        console.log(mouseFocus);
+        setMouseFocus(comp_graph.points.find(([x, y]: D) => Math.hypot(get_value(x) as number - mouse_x, get_value(y) as number - mouse_y) < 10));
       }}
       onMouseUp={() => setMousePressed(false)}
       onMouseMove={

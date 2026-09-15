@@ -177,7 +177,7 @@ class Parser {
         }
       case 'num':
         this.pos++;
-        if (this.consume_if({ kind: 'punct', value: '?' })) return { kind: 'param', value: token.value };
+        if (this.consume_if({ kind: 'punct', value: '?' })) return { kind: 'param', token };
         else return { kind: 'num', value: token.value };
       default:
         throw { kind: 'not primary expression', token: this.current() };

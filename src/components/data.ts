@@ -3,6 +3,7 @@ export type Token = {
   line: number;
   coll: number;
   colr: number;
+  spaces: number;
   token: TokenKind;
 };
 
@@ -19,7 +20,7 @@ export type Pattern = string | Pattern[];
 interface Let { kind: 'let', name: string, expr: Expr }
 interface Put { kind: 'put', trans: Expr, stmts: Stmt[] }
 
-interface Param { kind: 'param', value: number };
+interface Param { kind: 'param', token: Num };
 interface Var { kind: 'var', name: string }
 interface Abs { kind: 'abs', param: Pattern, body: Expr }
 interface App { kind: 'app', e1: Expr, e2: Expr }

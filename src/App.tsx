@@ -21,6 +21,7 @@ function App() {
       try {
         let tokens = tokenize(code);
         let prog_next = parse(tokens);
+        console.log(tokens);
         setProg(prog_next);
         setMsg(show_token_list(tokens));
       } catch (err: any) {

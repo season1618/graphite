@@ -1,4 +1,4 @@
-import type { Prog, Expr, Pattern } from './data.ts';
+import type { Num, Prog, Expr, Pattern } from './data.ts';
 import { type Base, type Node, type D, CompGraph, Curve } from './comp_graph.ts';
 
 type Name = string
@@ -110,7 +110,7 @@ class Compiler {
   evaluate(expr: Expr, env: Env, ref: Ref): Value {
     switch (expr.kind) {
       case 'param':
-        return this.create_base(expr.value);
+        return this.create_base(expr.token);
       case 'num':
         return this.create_const(expr.value);
       case 'var':
@@ -177,8 +177,8 @@ class Compiler {
     }
   }
 
-  create_base(value: number): Base {
-    let node: Base = { kind: 'base', value, diff: 0 };
+  create_base(token: Num): Base {
+    let node: Base = { kind: 'base', token, diff: 0 };
     this.inputs.push(node);
     return node;
   }
