@@ -34,7 +34,7 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
 
         let mouse_x = mousePos.x - origin.x;
         let mouse_y = -(mousePos.y - origin.y);
-        comp_graph.adjust_point(mouseFocus, [mouse_x - (mouseFocus[0].value as number), mouse_y - (mouseFocus[1].value as number)]);
+        comp_graph.adjust_point(mouseFocus, [mouse_x, mouse_y]);
         comp_graph.render(context);
       }
     }

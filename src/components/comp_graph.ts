@@ -35,7 +35,6 @@ export class Curve {
 
   render_interval(a: number, b: number, pa: [number, number], pb: [number, number], ctx: CanvasCtx) {
     const eps = 1;
-    // console.log(a, b, pa, pb);
     if (dist(pa, pb) < eps) {
       let [x1, y1] = pa;
       let [x2, y2] = pb;
@@ -211,12 +210,12 @@ export class CompGraph {
     this.nodes.forEach(evaluate);
   }
 
-  adjust_point([x, y]: [Node, Node], [dx, dy]: [number, number]) {
-    this.adjust(x, dx);
-    this.adjust(y, dy);
+  adjust_point([x, y]: [Node, Node], [goal_x, goal_y]: [number, number]) {
+    this.adjust(x, goal_x);
+    this.adjust(y, goal_y);
   }
 
-  adjust(root: Node, diff: number) { // root in nodes
+  adjust(root: Node, goal: number) { // root in nodes
     this.inputs.forEach(node => { node.diff = 0; });
     this.nodes.forEach(node => { if (node.kind !== 'const') node.diff = 0; });
 
@@ -225,6 +224,7 @@ export class CompGraph {
     this.nodes.toReversed().forEach(evaluate_diff);
 
     // gradient descent
+    let diff = goal - root.value;
     let sum_square = this.inputs.map(node => node.diff).reduce((acc, g) => acc + g*g, 0);
     this.inputs.forEach(node => { node.value += node.diff / sum_square * diff; });
 
