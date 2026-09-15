@@ -1,12 +1,32 @@
+import type { Closure, Ref } from './eval.ts';
+
 type Value = number | Value[]
 
 export type Node = Base | Const | Uni | Bin
-interface Base { kind: 'base', value: number, diff: number }
+export interface Base { kind: 'base', value: number, diff: number }
 interface Const { kind: 'const', value: Value }
 interface Uni { kind: 'neg' | 'rec' | 'exp' | 'log' | 'sin' | 'cos' | 'tan', value: number, diff: number, arg: Node }
 interface Bin { kind: 'add' | 'sub' | 'mul' | 'div' | 'pow', value: number, diff: number, lhs: Node, rhs: Node }
 
-class CompGraph {
+export class Curve {
+  fun: Closure;
+  param1: Node;
+  param2: Node;
+  point1: [Node, Node];
+  point2: [Node, Node];
+  ref: Ref;
+
+  constructor(fun: Closure, param1: Node, param2: Node, point1: [Node, Node], point2: [Node, Node], ref: Ref) {
+    this.fun = fun;
+    this.param1 = param1;
+    this.param2 = param2;
+    this.point1 = point1;
+    this.point2 = point2;
+    this.ref = ref;
+  }
+}
+
+export class CompGraph {
   inputs: Base[];
   middles: Node[];
   outputs: Node[];

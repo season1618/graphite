@@ -54,7 +54,8 @@ function Canvas({ height, width, prog }: { height: number; width: number; prog: 
       context.scale(1, -1);
 
       try {
-        execute(prog, context, Math.pow(1.1, logScale));
+        let graph = execute(prog, context, Math.pow(1.1, logScale));
+        console.log(graph);
       } catch (err) {
         console.log(err);
       }
