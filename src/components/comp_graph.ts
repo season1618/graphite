@@ -118,7 +118,7 @@ function convert(val: Val): Value {
   if (typeof val === 'number') return val;
   else if (val instanceof Closure) return val;
   else if (Array.isArray(val)) return val.map(convert);
-  else if (val === 'curve') throw '';
+  else if (val === 'point' || val === 'curve') throw '';
   else return get_value(val);
 }
 
@@ -269,6 +269,12 @@ export class CompGraph {
   render(ctx: CanvasCtx) {
     console.log('render');
     this.curves.forEach(curve => curve.render(ctx));
+    this.points.forEach(([x, y]: D) => {
+      ctx.beginPath();
+      ctx.arc(get_value(x) as number, get_value(y) as number, 5, 0, 2 * Math.PI);
+      ctx.closePath();
+      ctx.fill();
+    })
   }
 }
 

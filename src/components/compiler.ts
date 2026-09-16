@@ -3,7 +3,7 @@ import { type Base, type Node, type D, CompGraph, Curve } from './comp_graph.ts'
 
 type Name = string
 export type Value = number | Node | Fun | Value[]
-type Fun = 'curve' | Closure
+type Fun = 'point' | 'curve' | Closure
 
 class Bind {
   x: Name;
@@ -56,7 +56,7 @@ export class Closure {
 
 export function compile(prog: Prog, scale: number): CompGraph {
   console.log('compile');
-  let env = extend(null, 'curve', 'curve');
+  let env = extend(extend(null, 'point', 'point'), 'curve', 'curve');
 
   let scale_expr: Expr = { kind: 'num', value: scale };
   let scalex_expr: Expr = { kind: 'mul', lhs: scale_expr, rhs: { kind: 'var', name: 'x' } };
@@ -155,15 +155,18 @@ class Compiler {
   }
 
   apply(fun: Fun, arg: Value, ref: Ref): Value {
-    if (fun instanceof Closure) {
-      let { env, ref, param, body } = fun;
-      return this.evaluate(body, extend(env, param, arg), ref);
-    } else {
+    if (fun === 'point') {
+      let p = this.frame_apply(ref, arg) as D;
+      return [];
+    } else if (fun === 'curve') {
       let [f, [a, b]] = arg as [Closure, [Node, Node]];
       let pa = this.frame_apply(ref, this.apply(f, a, null)) as D;
       let pb = this.frame_apply(ref, this.apply(f, b, null)) as D;
       this.curves.push(new Curve(f, a, b, pa, pb, ref));
       return [];
+    } else {
+      let { env, ref, param, body } = fun;
+      return this.evaluate(body, extend(env, param, arg), ref);
     }
   }
 

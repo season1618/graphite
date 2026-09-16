@@ -114,7 +114,7 @@ function Canvas({ height, width, setCode, tokens, prog }: { height: number; widt
         setMousePressed(true);
         let mouse_x = mousePos.x - origin.x;
         let mouse_y = -(mousePos.y - origin.y);
-        setMouseFocus(comp_graph.points.find(([x, y]: D) => Math.hypot(get_value(x) as number - mouse_x, get_value(y) as number - mouse_y) < 10));
+        setMouseFocus(comp_graph.points.find(([x, y]: D) => Math.hypot(get_value(x) as number - mouse_x, get_value(y) as number - mouse_y) < 5));
       }}
       onMouseUp={() => setMousePressed(false)}
       onMouseMove={
