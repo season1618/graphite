@@ -12,7 +12,16 @@ function App() {
   const [borderX, setBorderX] = useState<number>(window.innerWidth / 2);
   const width = 5;
 
-  const [code, setCode] = useState('let r = 100;\nlet f = x -> (r * cos x, r * sin x);\ncurve(f, (-3, 3));');
+  const [code, setCode] = useState(
+`let scale s (x, y) = (s * x, s * y);
+let polar (r, th) = (r * cos th, r * sin th);
+put scale 10:
+  put polar:
+    let spiral a th = (a * th, th);
+    curve(spiral 1?, (0, 5? * 6.28));
+    end
+  end
+`);
   const [msg, setMsg] = useState('');
   const [tokens, setTokens] = useState<Token[]>([]);
   const [prog, setProg] = useState<Prog>([]);
