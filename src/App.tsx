@@ -14,8 +14,15 @@ function App() {
 
   const [code, setCode] = useState('let r = 100;\nlet f = x -> (r * cos x, r * sin x);\ncurve(f, (-3, 3));');
   const [msg, setMsg] = useState('');
-  const [tokens, setTokens] = useState<Token[]>(tokenize(code));
+  const [tokens, setTokens] = useState<Token[]>([]);
   const [prog, setProg] = useState<Prog>([]);
+
+  useEffect(
+    () => {
+      setTokens(tokenize(code));
+    },
+    []
+  );
 
   useEffect(
     () => {

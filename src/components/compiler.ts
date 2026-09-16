@@ -55,6 +55,7 @@ export class Closure {
 }
 
 export function compile(prog: Prog, scale: number): CompGraph {
+  console.log('compile');
   let env = extend(null, 'curve', 'curve');
 
   let scale_expr: Expr = { kind: 'num', value: scale };

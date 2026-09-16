@@ -76,6 +76,7 @@ function CodeEditor({ height, width, code, msg, setCode, setMsg, setTokens }: { 
         value={code}
         onChange={
           (e) => {
+            console.log('change');
             let code = e.target.value;
             format(e.target.selectionStart, code);
           }

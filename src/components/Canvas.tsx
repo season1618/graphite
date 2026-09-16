@@ -35,9 +35,13 @@ function Canvas({ height, width, setCode, tokens, prog }: { height: number; widt
 
         let mouse_x = mousePos.x - origin.x;
         let mouse_y = -(mousePos.y - origin.y);
-        comp_graph.adjust_point(mouseFocus, [mouse_x, mouse_y]);
-        setCode(serialize(tokens));
-        comp_graph.render(context);
+        try {
+          comp_graph.adjust_point(mouseFocus, [mouse_x, mouse_y]);
+          setCode(serialize(tokens));
+          comp_graph.render(context);
+        } catch (err) {
+          console.log(err);
+        }
       }
     }
     setMousePos({ x, y });
@@ -92,9 +96,13 @@ function Canvas({ height, width, setCode, tokens, prog }: { height: number; widt
       context.translate(origin.x, origin.y);
       context.scale(1, -1);
 
-      comp_graph.evaluate();
-      console.log(comp_graph);
-      comp_graph.render(context);
+      try{
+        comp_graph.evaluate();
+        console.log(comp_graph);
+        comp_graph.render(context);
+      } catch (err) {
+        console.log(err);
+      }
     },
     [origin, canvasSize, width, comp_graph]
   );

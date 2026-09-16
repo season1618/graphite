@@ -231,10 +231,12 @@ export class CompGraph {
   }
 
   evaluate() {
+    console.log('evaluate');
     this.nodes.forEach(evaluate);
   }
 
   adjust_point([x, y]: [Node, Node], [goal_x, goal_y]: [number, number]) {
+    console.log('adjust');
     let dx = goal_x - (get_value(x) as number);
     let dy = goal_y - (get_value(y) as number);
 
@@ -265,6 +267,7 @@ export class CompGraph {
   }
 
   render(ctx: CanvasCtx) {
+    console.log('render');
     this.curves.forEach(curve => curve.render(ctx));
   }
 }

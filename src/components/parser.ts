@@ -2,6 +2,7 @@ import type { Token, TokenKind, Prog, Stmt, Expr, Pattern } from './data.ts';
 import isEqual from "lodash/isEqual";
 
 export function parse(tokens: Token[]): Prog {
+  console.log('parse');
   let parser = new Parser(tokens);
   return parser.prog();
 }

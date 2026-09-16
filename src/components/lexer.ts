@@ -4,6 +4,7 @@ const keywords = ["put", "end", "let", "exp", "log", "sin", "cos", "tan"];
 const puncts = ["[", "]", "{", "}", "(", ")", "->", "==", "=", "+", "-", "*", "/", "^", ",", "?", ":", ";"];
 
 export function tokenize(code: string): Token[] {
+  console.log('tokenize');
   let tokens: Token[] = [];
   let line = 1;
   let col = 0;
