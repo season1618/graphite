@@ -248,7 +248,7 @@ export class CompGraph {
     // gradient descent
     let diff = goal - (get_value(root) as number);
     let sum_square = this.inputs.map(node => node.diff).reduce((acc, g) => acc + g*g, 0);
-    this.inputs.forEach(node => { add_value(node, node.diff / sum_square * diff); });
+    if (sum_square > 0) this.inputs.forEach(node => { add_value(node, node.diff / sum_square * diff); });
 
     this.nodes.forEach(evaluate);
   }
