@@ -105,7 +105,7 @@ class Parser {
     while (true) {
       let pos = this.pos;
       try{
-        let arg = this.unary();
+        let arg = this.prim();
         fun = { kind: 'app', e1: fun, e2: arg };
         continue;
       } catch {

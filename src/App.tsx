@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import CodeEditor from './components/CodeEditor';
 import Canvas from './components/Canvas';
 
-import { type Token, type Prog, type Error, show_error, show_token_list } from './components/data.ts';
+import { type Token, type Prog, type Error, show_error, show_prog } from './components/data.ts';
 import { tokenize } from './components/lexer.ts';
 import { parse } from './components/parser.ts';
 
@@ -20,9 +20,9 @@ function App() {
   useEffect(
     () => {
       try {
-        let prog_next = parse(tokens);
-        setProg(prog_next);
-        setMsg(show_token_list(tokens));
+        let prog = parse(tokens);
+        setProg(prog);
+        setMsg(show_prog(prog));
       } catch (err: any) {
         if ('kind' in err) {
           setMsg(show_error(err as Error, code));

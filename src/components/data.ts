@@ -56,6 +56,62 @@ function show_token_kind(token: TokenKind): string {
   return `${token.value}`;
 }
 
+export function show_prog(prog: Prog): string {
+  return prog.map(show_stmt).join('');
+}
+
+function show_stmt(stmt: Stmt): string {
+  switch (stmt.kind) {
+    case 'let':
+      return `${stmt.name} = ${show_expr(stmt.expr)}\n`;
+    case 'put':
+      return `put ${show_expr(stmt.trans)}\n$${show_prog(stmt.stmts)}\nend\n`;
+    default:
+      return `${show_expr(stmt)}\n`;
+  }
+}
+
+function show_expr(expr: Expr): string {
+  switch (expr.kind) {
+    case 'param':
+      return `${expr.token.value}`;
+    case 'num':
+      return `${expr.value}`;
+    case 'var':
+      return expr.name;
+    case 'abs':
+      return `${show_pattern(expr.param)} -> ${show_expr(expr.body)}`;
+    case 'app':
+      return `${show_expr(expr.e1)} ${show_expr(expr.e2)}`;
+    case 'tuple':
+      return '(' + expr.exprs.map(show_expr).join(', ') + ')';
+    case 'neg':
+    case 'rec':
+    case 'exp':
+    case 'log':
+    case 'sin':
+    case 'cos':
+    case 'tan':
+      return `${expr.kind} ${show_expr(expr.arg)}`;
+    case 'add':
+    case 'sub':
+    case 'mul':
+    case 'div':
+    case 'pow':
+      return `${expr.kind}(${show_expr(expr.lhs)}, ${show_expr(expr.rhs)})`;
+    case 'block':
+      return '';
+  }
+}
+
+function show_pattern(pattern: Pattern): string {
+  if (Array.isArray(pattern)) {
+    return '(' + pattern.map(show_pattern).join(', ') + ')';
+  } else {
+    return pattern;
+  }
+}
+
 export function show_error(err: Error, code: string): string {
   switch (err.kind) {
     case 'Invalid Token':
