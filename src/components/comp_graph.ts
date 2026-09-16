@@ -1,3 +1,5 @@
+import { Matrix, pseudoInverse } from 'ml-matrix';
+
 import type { Num, Expr, Pattern } from './data.ts';
 import { type Value as Val, Closure, type Ref } from './compiler.ts';
 
@@ -233,24 +235,33 @@ export class CompGraph {
   }
 
   adjust_point([x, y]: [Node, Node], [goal_x, goal_y]: [number, number]) {
-    this.adjust(x, goal_x);
-    this.adjust(y, goal_y);
+    let dx = goal_x - (get_value(x) as number);
+    let dy = goal_y - (get_value(y) as number);
+
+    // gradient
+    let dxda = this.grad(x);
+    let dyda = this.grad(y);
+    let Jacob = new Matrix([dxda, dyda]);
+
+    // pseudo-inverse matrix
+    let JacobPinv = pseudoInverse(Jacob);
+    for (let i = 0; i < this.inputs.length; i++) {
+      add_value(this.inputs[i], JacobPinv.get(i, 0) * dx + JacobPinv.get(i, 1) * dy);
+    }
+
+    // re-evaluation
+    this.nodes.forEach(evaluate);
   }
 
-  adjust(root: Node, goal: number) { // root in nodes
+  grad(root: Node): number[] { // root in nodes
     this.inputs.forEach(node => { node.diff = 0; });
     this.nodes.forEach(node => { if (node.kind !== 'const') node.diff = 0; });
 
-    if (root.kind === 'const') return;
+    if (root.kind === 'const') return Array(this.inputs.length).fill(0);
     root.diff = 1;
     this.nodes.toReversed().forEach(evaluate_diff);
 
-    // gradient descent
-    let diff = goal - (get_value(root) as number);
-    let sum_square = this.inputs.map(node => node.diff).reduce((acc, g) => acc + g*g, 0);
-    if (sum_square > 0) this.inputs.forEach(node => { add_value(node, node.diff / sum_square * diff); });
-
-    this.nodes.forEach(evaluate);
+    return this.inputs.map(node => node.diff);
   }
 
   render(ctx: CanvasCtx) {
