@@ -156,7 +156,8 @@ class Compiler {
 
   apply(fun: Fun, arg: Value, ref: Ref): Value {
     if (fun === 'point') {
-      let p = this.frame_apply(ref, arg) as D;
+      let point = this.frame_apply(ref, arg) as D;
+      this.points.push(point);
       return [];
     } else if (fun === 'curve') {
       let [f, [a, b]] = arg as [Closure, [Node, Node]];
