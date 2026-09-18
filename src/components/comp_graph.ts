@@ -236,12 +236,20 @@ export class CompGraph {
     // gradient
     let dxda = this.grad(x);
     let dyda = this.grad(y);
-    let Jacob = new Matrix([dxda, dyda]);
+    let Jacob_: number[][] = [];
+    let scale = [];
+    for (let i = 0; i < this.inputs.length; i++) {
+      let len = Math.hypot(dxda[i], dyda[i]);
+      if (len === 0) len = 1;
+      Jacob_.push([dxda[i] / len, dyda[i] / len]);
+      scale.push(len);
+    }
+    let Jacob = new Matrix(Jacob_).transpose();
 
     // pseudo-inverse matrix
     let JacobPinv = pseudoInverse(Jacob);
     for (let i = 0; i < this.inputs.length; i++) {
-      add_value(this.inputs[i], JacobPinv.get(i, 0) * dx + JacobPinv.get(i, 1) * dy);
+      add_value(this.inputs[i], (JacobPinv.get(i, 0) * dx + JacobPinv.get(i, 1) * dy) / scale[i]);
     }
 
     // re-evaluation
