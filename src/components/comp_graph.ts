@@ -22,15 +22,8 @@ export function get_value(node: Node): Value {
   }
 }
 
-function add_value(node: Base | Uni | Bin, value: number) {
-  switch (node.kind) {
-    case 'base':
-      node.token.value += value;
-      break;
-    default:
-      node.value = value;
-      break;
-  }
+function add_value(node: Base, value: number) {
+  node.token.value += value;
 }
 
 type CanvasCtx = CanvasRenderingContext2D
