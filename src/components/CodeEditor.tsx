@@ -6,7 +6,7 @@ import { tokenize } from './lexer.ts';
 
 function CodeEditor({ height, width, code, msg, setCode, setMsg, setTokens }: { height: number; width: number; code: string; msg: string; setCode: React.Dispatch<React.SetStateAction<string>>, setMsg: React.Dispatch<React.SetStateAction<string>>, setTokens: React.Dispatch<React.SetStateAction<Token[]>> }) {
   const [cursorPos, setCursorPos] = useState(-1);
-  const indent = 4;
+  const indent = 2;
 
   const [dragged, setDragged] = useState(false);
   const [borderY, setBorderY] = useState(400);
