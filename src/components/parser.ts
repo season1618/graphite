@@ -257,14 +257,6 @@ class Parser {
   }
 }
 
-// function expr_to_pattern(expr: Expr): Pattern | undefined {
-//   try {
-//     return expr_to_pattern_(expr);
-//   } catch {
-//     return undefined;
-//   }
-// }
-
 function expr_to_pattern(expr: Expr): Pattern {
   switch (expr.kind) {
     case 'var':
