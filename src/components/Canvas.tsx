@@ -11,7 +11,6 @@ function Canvas({ height, width, setCode, tokens, prog }: { height: number; widt
 
   const [origin, setOrigin] = useState({ x: width/2, y: height/2 });
   const [logScale, setLogScale] = useState(0);
-  const [canvasSize, setCanvasSize] = useState({ height: 0, width: 0 });
 
   const [comp_graph, setCompGraph] = useState(new CompGraph([], [], [], []));
 
@@ -59,17 +58,6 @@ function Canvas({ height, width, setCode, tokens, prog }: { height: number; widt
 
   useEffect(
     () => {
-      const canvas = document.querySelector('canvas') as HTMLCanvasElement;
-
-      window.addEventListener('resize', () => {
-        setCanvasSize({ width: canvas.clientWidth, height: canvas.clientHeight });
-      });
-    },
-    []
-  );
-
-  useEffect(
-    () => {
       try {
         let graph = compile(prog, Math.pow(1.1, logScale));
         setCompGraph(graph);
@@ -104,7 +92,7 @@ function Canvas({ height, width, setCode, tokens, prog }: { height: number; widt
         console.log(err);
       }
     },
-    [origin, canvasSize, width, comp_graph]
+    [width, height, origin, comp_graph]
   );
 
   return (
