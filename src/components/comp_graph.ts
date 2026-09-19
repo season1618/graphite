@@ -115,7 +115,7 @@ function convert(val: Val): Value {
   else return get_value(val);
 }
 
-function evaluate_(expr: Expr, env: Env, ref: Ref): Value {
+function evaluate(expr: Expr, env: Env, ref: Ref): Value {
   switch (expr.kind) {
     case 'param':
       return expr.token.value;
@@ -129,12 +129,12 @@ function evaluate_(expr: Expr, env: Env, ref: Ref): Value {
     }
     case 'app': {
       let { e1, e2 } = expr;
-      let v1 = evaluate_(e1, env, ref);
-      let v2 = evaluate_(e2, env, ref);
+      let v1 = evaluate(e1, env, ref);
+      let v2 = evaluate(e2, env, ref);
       return apply(v1 as Closure, v2, ref);
     }
     case 'tuple':
-      return expr.exprs.map(e => evaluate_(e, env, ref));
+      return expr.exprs.map(e => evaluate(e, env, ref));
     case 'neg':
     case 'rec':
     case 'exp':
@@ -143,7 +143,7 @@ function evaluate_(expr: Expr, env: Env, ref: Ref): Value {
     case 'cos':
     case 'tan': {
       let { kind, arg } = expr;
-      let val = evaluate_(arg, env, ref) as number;
+      let val = evaluate(arg, env, ref) as number;
       return unary_op(kind, val);
     }
     case 'add':
@@ -152,18 +152,18 @@ function evaluate_(expr: Expr, env: Env, ref: Ref): Value {
     case 'div':
     case 'pow':
       let { kind, lhs, rhs } = expr;
-      let v1 = evaluate_(lhs, env, ref) as number;
-      let v2 = evaluate_(rhs, env, ref) as number;
+      let v1 = evaluate(lhs, env, ref) as number;
+      let v2 = evaluate(rhs, env, ref) as number;
       return binary_op(kind, v1, v2);
     case 'block':
-      let vals = expr.exprs.map(e => evaluate_(e, env, ref));
+      let vals = expr.exprs.map(e => evaluate(e, env, ref));
       return vals[vals.length - 1];
   }
 }
 
 function apply(fun: Closure, arg: Value, _: Ref): Value {
   let { env, ref, param, body } = fun;
-  return evaluate_(body, extend(env as Env, param, arg), ref);
+  return evaluate(body, extend(env as Env, param, arg), ref);
 }
 
 function frame_apply(ref: Ref, point: Value): [number, number] {
@@ -223,9 +223,8 @@ export class CompGraph {
     this.curves = curves;
   }
 
-  evaluate() {
-    console.log('evaluate');
-    this.nodes.forEach(evaluate);
+  compute() {
+    this.nodes.forEach(forward_prop);
   }
 
   adjust_point([x, y]: [Node, Node], [goal_x, goal_y]: [number, number]) {
@@ -252,8 +251,8 @@ export class CompGraph {
       add_value(this.inputs[i], (JacobPinv.get(i, 0) * dx + JacobPinv.get(i, 1) * dy) / scale[i]);
     }
 
-    // re-evaluation
-    this.nodes.forEach(evaluate);
+    // recomputation
+    this.compute();
   }
 
   grad(root: Node): number[] { // root in nodes
@@ -262,7 +261,7 @@ export class CompGraph {
 
     if (root.kind === 'const') return Array(this.inputs.length).fill(0);
     root.diff = 1;
-    this.nodes.toReversed().forEach(evaluate_diff);
+    this.nodes.toReversed().forEach(backward_prop);
 
     return this.inputs.map(node => node.diff);
   }
@@ -279,7 +278,7 @@ export class CompGraph {
   }
 }
 
-function evaluate(node: Node) {
+function forward_prop(node: Node) {
   switch (node.kind) {
     case 'base':
     case 'const':
@@ -303,7 +302,7 @@ function evaluate(node: Node) {
   }
 }
 
-function evaluate_diff(node: Node) {
+function backward_prop(node: Node) {
   if (node.kind === 'const') return;
   let diff = node.diff;
   switch (node.kind) {

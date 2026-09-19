@@ -85,7 +85,7 @@ function Canvas({ height, width, setCode, tokens, prog }: { height: number; widt
       context.scale(1, -1);
 
       try{
-        comp_graph.evaluate();
+        comp_graph.compute();
         console.log(comp_graph);
         comp_graph.render(context);
       } catch (err) {
